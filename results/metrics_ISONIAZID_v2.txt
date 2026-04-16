@@ -1,0 +1,19 @@
+Drug: ISONIAZID
+Samples: 9580
+Resistant: 8238 (86.0%)
+Susceptible: 1342 (14.0%)
+
+Accuracy : 0.9045
+AUC-ROC  : 0.9475
+
+CV Accuracy : 0.9055 +/- 0.0038
+CV AUC-ROC  : 0.9464 +/- 0.0077
+
+              precision    recall  f1-score   support
+
+ Susceptible       0.61      0.91      0.73       268
+   Resistant       0.98      0.90      0.94      1648
+
+    accuracy                           0.90      1916
+   macro avg       0.79      0.91      0.83      1916
+weighted avg       0.93      0.90      0.91      1916
