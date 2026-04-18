@@ -1,0 +1,10 @@
+name: tb-wgs-pipeline
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - fastp
+  - bwa
+  - samtools
+  - bcftools
+  - sra-tools
