@@ -1,1 +1,33 @@
-rpoBC_fullseq.csv
+# Large data files — share via Google Drive
+resistance_dataset/all_variants.csv.gz
+resistance_dataset/batch_*
+resistance_dataset/run_accessions.txt
+resistance_dataset/biosample_to_run.tsv
+resistance_dataset/qc_report.txt
+
+# VCF and BAM files
+vcf/
+aligned_bam/
+
+# Logs and QC outputs
+logs/
+fastp.html
+fastp.json
+
+# Reference files (too large for GitHub)
+reference/*.fasta
+reference/*.fai
+reference/*.bwt
+reference/*.pac
+reference/*.ann
+reference/*.amb
+reference/*.sa
+reference/*.gff
+
+# Python cache
+__pycache__/
+*.pyc
+
+# SLURM outputs
+*.out
+*.err
