@@ -3,7 +3,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=20G
 #SBATCH --time=24:00:00
-#SBATCH --array=1-1000%20
+#SBATCH --array=1-1000%50
 #SBATCH -o logs/%x_${BATCH}_%A_%a.out
 #SBATCH -e logs/%x_${BATCH}_%A_%a.err
 
