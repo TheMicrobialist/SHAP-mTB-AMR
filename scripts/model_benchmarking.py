@@ -65,7 +65,7 @@ print(f"{'='*65}")
 
 # ── Load data ─────────────────────────────────────────────────────────────────
 print("\nLoading matrix...")
-df = pd.read_csv("resistance_dataset/ml_matrix.csv.gz", index_col="SAMPLE")
+df = pd.read_csv("../resistance_dataset/ml_matrix.csv.gz", index_col="SAMPLE")
 print(f"Matrix shape: {df.shape}")
 
 feature_cols = [c for c in df.columns if c.startswith("pos_")]
@@ -131,18 +131,6 @@ models = {
         n_jobs=-1,
         verbosity=0,
     ),
-
-    "Logistic Regression": Pipeline([
-        ("scaler", StandardScaler(with_mean=False)),  # sparse-safe
-        ("clf", LogisticRegression(
-            C=0.1,                      # moderate regularisation
-            class_weight="balanced",
-            solver="saga",              # efficient for large/sparse data
-            max_iter=1000,
-            random_state=RANDOM_STATE,
-            n_jobs=-1,
-        )),
-    ]),
 
     "Linear SVM (SGD)": Pipeline([
         ("scaler", StandardScaler(with_mean=False)),
