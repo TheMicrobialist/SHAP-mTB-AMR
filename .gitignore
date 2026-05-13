@@ -34,3 +34,4 @@ __pycache__/
 
 #pickle files
 scripts/results/*.pkl
+*.pkl
