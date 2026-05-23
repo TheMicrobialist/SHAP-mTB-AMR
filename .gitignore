@@ -31,3 +31,7 @@ __pycache__/
 # SLURM outputs
 *.out
 *.err
+
+#pickle files
+scripts/results/*.pkl
+*.pkl

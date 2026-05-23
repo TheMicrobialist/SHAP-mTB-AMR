@@ -1,0 +1,4 @@
+Model,Test Accuracy,Test AUC-ROC,CV Accuracy Mean,CV Accuracy Std,CV AUC-ROC Mean,CV AUC-ROC Std,Non-zero Coefs,Converged,Solver Iterations,Fit Time (s)
+LR L1 (Lasso),0.8951,0.9427,0.892,0.0043,0.9433,0.0068,1051,True,1820,1410.13
+LR ElasticNet,0.8977,0.9419,0.8907,0.0054,0.9428,0.0062,1327,True,1881,1547.43
+LR L2 (Ridge),0.8951,0.9379,0.8909,0.0067,0.9382,0.006,2340,True,1770,957.91
