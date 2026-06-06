@@ -18,6 +18,10 @@ Usage:
 Output:
     results/predictions/ERR040120_RIFAMPICIN_prediction.json
     results/predictions/ERR040120_RIFAMPICIN_shap_values.csv
+
+Trained models:
+    HuggingFace: https://huggingface.co/nanzhen102/FORUM-TB-models
+    Download models to models/ before running.    
 """
 
 import os
