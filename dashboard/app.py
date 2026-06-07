@@ -31,15 +31,10 @@ warnings.filterwarnings("ignore")
 # ── Config ─────────────────────────────────────────────────────────────────────
 DRUGS       = ["RIFAMPICIN", "ISONIAZID", "ETHAMBUTOL", "PYRAZINAMIDE"]
 HF_REPO     = "nanzhen102/FORUM-TB-models"
-# Path relative to repo root, not dashboard/
-DEMO_JSON = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "results", "predictions", "ERR040120_predictions.json"
-)
-MATRIX_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "resistance_dataset", "ml_matrix.csv.gz"
-)
+# Works both locally and on HuggingFace Spaces
+_root = os.path.dirname(os.path.abspath(__file__))
+DEMO_JSON = os.path.join(_root, "results", "predictions", "ERR040120_predictions.json")
+MATRIX_PATH = os.path.join(_root, "resistance_dataset", "ml_matrix.csv.gz")
 DEMO_SAMPLE = "ERR040120"
 NUC_ENCODE  = {"A": 1, "T": 2, "C": 3, "G": 4}
 TOP_N_SHAP  = 20
