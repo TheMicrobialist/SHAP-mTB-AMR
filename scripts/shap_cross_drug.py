@@ -127,11 +127,6 @@ for i, drug in enumerate(DRUGS):
     rf_small.fit(X_train[top_features], Y_train.iloc[:, i])
     rf_drug = rf_small  # use smaller model for SHAP
 
-    # Top 50 features by importance for this drug
-    importances  = pd.Series(rf_drug.feature_importances_,
-                             index=feature_cols)
-    top_features = importances.nlargest(TOP_N).index.tolist()
-
     # Background: 100 samples from training data
     background = X_train[top_features].sample(
         100, random_state=RANDOM_STATE
@@ -161,12 +156,6 @@ for i, drug in enumerate(DRUGS):
         print(f"    Batch {start}-{end} done")
 
     shap_arr = np.vstack(shap_list)
-
-    # Handle output format
-    if isinstance(shap_vals, list):
-        shap_arr = shap_vals[1]   # class 1 = Resistant
-    else:
-        shap_arr = shap_vals[:, :, 1] if shap_vals.ndim == 3 else shap_vals
 
     # Store as DataFrame: samples × top_features
     shap_df = pd.DataFrame(
