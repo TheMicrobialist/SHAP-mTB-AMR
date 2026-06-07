@@ -51,6 +51,25 @@ DRUG_PAIRS = [
 
 TOP_N       = 50    # top features for SHAP (stability)
 RANDOM_STATE = 42
+
+AMR_GENE_COORDS = {
+    "rpoB":  (759807,  763325),
+    "katG":  (2153889, 2156111),
+    "inhA":  (1674202, 1675011),
+    "fabG1": (1673440, 1674183),
+    "embB":  (4246514, 4249810),
+    "embA":  (4243233, 4246517),
+    "embC":  (4239863, 4243147),
+    "pncA":  (2288681, 2289241),
+    "rpsA":  (1833542, 1834987),
+}
+
+def get_gene_for_position(pos_str):
+    pos = int(pos_str.replace("pos_", ""))
+    for gene, (start, end) in AMR_GENE_COORDS.items():
+        if start <= pos <= end:
+            return gene
+    return "unknown"
 # ──────────────────────────────────────────────────────────────────────────────
 
 os.makedirs("results", exist_ok=True)
@@ -283,9 +302,6 @@ for drug_a, drug_b in pairs_to_run:
     print(f"  {'─'*70}")
 
     # Add gene annotation
-    import sys
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from vcf_to_prediction import get_gene_for_position
     pair_df["gene"] = pair_df["position"].apply(get_gene_for_position)
 
     for _, row in pair_df.head(10).iterrows():
