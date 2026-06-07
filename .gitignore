@@ -34,4 +34,6 @@ __pycache__/
 
 #pickle files
 scripts/results/*.pkl
-*.pkl
+*.pklresults/model_objects_multi.pkl
+models/
+test_data/
