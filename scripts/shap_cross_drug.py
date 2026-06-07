@@ -283,7 +283,9 @@ for drug_a, drug_b in pairs_to_run:
     print(f"  {'─'*70}")
 
     # Add gene annotation
-    from scripts.vcf_to_prediction import get_gene_for_position
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from vcf_to_prediction import get_gene_for_position
     pair_df["gene"] = pair_df["position"].apply(get_gene_for_position)
 
     for _, row in pair_df.head(10).iterrows():
