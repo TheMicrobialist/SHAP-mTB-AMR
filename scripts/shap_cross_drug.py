@@ -112,6 +112,20 @@ drug_shap_values = {}
 for i, drug in enumerate(DRUGS):
     print(f"\n  Drug: {drug}")
     rf_drug = rf_multi.estimators_[i]
+    # Reduce tree count for SHAP stability — use 100 trees instead of 300
+    from sklearn.ensemble import RandomForestClassifier
+    rf_small = RandomForestClassifier(
+        n_estimators=100,
+        class_weight="balanced",
+        random_state=RANDOM_STATE,
+        n_jobs=-1
+    )
+    # Get feature subset
+    importances  = pd.Series(rf_drug.feature_importances_, index=feature_cols)
+    top_features = importances.nlargest(TOP_N).index.tolist()
+    # Retrain small RF on top features only
+    rf_small.fit(X_train[top_features], Y_train.iloc[:, i])
+    rf_drug = rf_small  # use smaller model for SHAP
 
     # Top 50 features by importance for this drug
     importances  = pd.Series(rf_drug.feature_importances_,
