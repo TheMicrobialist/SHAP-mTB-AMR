@@ -153,12 +153,17 @@ def compute_prediction_and_shap(feature_vec, drug, background):
 
     importances  = pd.Series(rf.feature_importances_, index=feature_vec.index)
     top_features = importances.nlargest(50).index.tolist()
-    bg_top       = background[top_features]
+    # Only use features that exist in background
+    valid_features = [f for f in top_features if f in background.columns]
+    bg_top = background[valid_features]
+    X_top  = pd.DataFrame(
+        [feature_vec[valid_features].values],
+        columns=valid_features
+    )
 
     explainer = shap.TreeExplainer(
         rf, data=bg_top, feature_perturbation="interventional"
     )
-    X_top     = pd.DataFrame([feature_vec[top_features].values], columns=top_features)
     shap_vals = explainer.shap_values(X_top, check_additivity=False)
 
     if isinstance(shap_vals, list):
@@ -166,7 +171,7 @@ def compute_prediction_and_shap(feature_vec, drug, background):
     else:
         arr = shap_vals[0, :, 1] if shap_vals.ndim == 3 else shap_vals[0]
 
-    shap_series = pd.Series(arr, index=top_features)
+    shap_series = pd.Series(arr, index=valid_features)
     top_shap = [
         {
             "position":      feat,

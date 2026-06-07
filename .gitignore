@@ -37,3 +37,4 @@ scripts/results/*.pkl
 *.pklresults/model_objects_multi.pkl
 models/
 test_data/
+results/model_objects_multi.pkl
