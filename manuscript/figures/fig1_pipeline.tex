@@ -1,0 +1,92 @@
+% Overview schematic of the FORUM-TB framework (modelled on the layout of
+% Fig. 1 in the reference preprint: staged, left-to-right framework overview).
+%
+% Layout: nodes sit on a fixed (column, row) grid with a uniform box height, so
+% that rows align across all five stages and every column ends at the same
+% baseline. Do not switch back to relative "below=of" chaining -- boxes grow
+% with their text and the rows drift out of alignment.
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\sffamily\small,
+  hdr/.style={
+    rounded corners=3pt, draw=none, fill=#1,
+    text width=3.35cm, align=center, inner sep=4pt,
+    font=\sffamily\bfseries\small, text=white},
+  item/.style={
+    rounded corners=2pt, draw=black!25, fill=black!3,
+    text width=3.05cm, align=center, inner sep=4pt,
+    font=\sffamily\scriptsize,
+    minimum height=1.5cm},          % sized for the tallest box (4 text lines)
+  note/.style={font=\sffamily\scriptsize\itshape, text=black!60, align=center,
+    text width=3.3cm},
+  flow/.style={-{Stealth[length=3mm,width=2mm]}, line width=1.1pt, draw=black!55},
+  sub/.style={-{Stealth[length=2mm,width=1.4mm]}, line width=0.7pt, draw=black!35}
+]
+
+% ---- palette ----
+\definecolor{cData}{HTML}{2C6E9B}
+\definecolor{cProc}{HTML}{3E8C6E}
+\definecolor{cFeat}{HTML}{B07A2B}
+\definecolor{cModel}{HTML}{8A4B76}
+\definecolor{cInt}{HTML}{B04A3E}
+
+% ---- grid ----------------------------------------------------------------
+% Column centres: 0, 4, 8, 12, 16.  Row centres: headers 0, then -1.25 /
+% -3.00 / -4.75 (1.75 pitch, 1.5 box height => 0.25 gap), notes at -5.85.
+\def\rowA{-1.25}
+\def\rowB{-3.00}
+\def\rowC{-4.75}
+\def\rowN{-5.85}
+
+% ================= column headers =================
+\node[hdr=cData]  (h1) at (0,0)    {1. Data};
+\node[hdr=cProc]  (h2) at (4,0)    {2. Processing};
+\node[hdr=cFeat]  (h3) at (8,0)    {3. Features};
+\node[hdr=cModel] (h4) at (12,0)   {4. Models};
+\node[hdr=cInt]   (h5) at (16,0)   {5. Interpretation};
+
+% ================= column 1: data =================
+\node[item] (d1) at (0,\rowA) {ENA / SRA\\ paired-end FASTQ\\ \textbf{9{,}798 isolates}};
+\node[item] (d2) at (0,\rowB) {Phenotype table\\ 23{,}051 isolates,\\ 23 drugs};
+\node[item] (d3) at (0,\rowC) {\textbf{4 first-line drugs}\\ RIF $\cdot$ INH\\ EMB $\cdot$ PZA};
+\node[note] (n1) at (0,\rowN) {Public, de-identified};
+
+% ================= column 2: processing =================
+\node[item] (p1) at (4,\rowA) {\textbf{fastp} 1.0.1\\ QC \& trimming};
+\node[item] (p2) at (4,\rowB) {\textbf{BWA-MEM} 0.7.18\\ align to H37Rv\\ (NC\_000962.3)};
+\node[item] (p3) at (4,\rowC) {\textbf{bcftools} 1.22\\ call \& filter\\ QUAL$\geq$20, MQ$\geq$30};
+\node[note] (n2) at (4,\rowN) {705{,}226 variant\\ positions};
+
+% ================= column 3: features =================
+\node[item] (f1) at (8,\rowA) {SNP-only filter\\ (indels excluded)};
+\node[item] (f2) at (8,\rowB) {Intersect \textbf{9 AMR genes}\\ \textit{rpoB}, \textit{katG}, \textit{inhA}, \textit{fabG1},\\ \textit{embA/B/C}, \textit{pncA}, \textit{rpsA}};
+\node[item] (f3) at (8,\rowC) {Encode 0--4\\ REF / A / T / C / G\\ + join R/S labels};
+\node[note] (n3) at (8,\rowN) {Matrix\\ 9{,}798 $\times$ 2{,}693};
+
+% ================= column 4: models =================
+\node[item] (m1) at (12,\rowA) {\textbf{Per-drug binary}\\ 7 classifiers\\ RF, LGBM, XGB,\\ SVM, LR (L1/EN/L2)};
+\node[item] (m2) at (12,\rowB) {\textbf{Multi-label}\\ MultiOutputClassifier\\ 5{,}180 isolates};
+\node[item] (m3) at (12,\rowC) {80/20 split\\ 5-fold CV};
+\node[note] (n4) at (12,\rowN) {Random Forest best\\ on all four drugs};
+
+% ================= column 5: interpretation =================
+\node[item] (i1) at (16,\rowA) {\textbf{SHAP} TreeExplainer\\ top-50 features/drug};
+\node[item] (i2) at (16,\rowB) {Cross-drug attribution\\ 6 drug pairs\\ co-resistance $\Delta$};
+\node[item] (i3) at (16,\rowC) {Public dashboard\\ VCF $\rightarrow$ prediction\\ + explanation};
+\node[note] (n5) at (16,\rowN) {\textit{rpoB} S450L, \textit{katG} S315T\\ recovered \textit{de novo}};
+
+% ================= inter-stage flow arrows (stage-level, not node-level) ====
+\draw[flow] (h1.east) -- (h2.west);
+\draw[flow] (h2.east) -- (h3.west);
+\draw[flow] (h3.east) -- (h4.west);
+\draw[flow] (h4.east) -- (h5.west);
+
+% ================= intra-column flow arrows =================
+\foreach \a/\b in {p1/p2, p2/p3, f1/f2, f2/f3} {\draw[sub] (\a) -- (\b);}
+
+\end{tikzpicture}}
+\caption{\textbf{Overview of the FORUM-TB framework.} Publicly available \textit{M. tuberculosis} whole-genome sequencing runs and their phenotypic drug-susceptibility labels are processed through a standardized read-to-variant pipeline, reduced to a nucleotide-encoded SNP feature matrix restricted to nine antimicrobial-resistance genes, and used to train per-drug and multi-label classifiers for the four first-line drugs. The best-performing models are then interpreted with SHAP, both per drug and across drug pairs, and deployed in a public dashboard that returns a resistance profile and its per-feature explanation for a user-supplied VCF.}
+\label{fig:pipeline}
+\end{figure*}

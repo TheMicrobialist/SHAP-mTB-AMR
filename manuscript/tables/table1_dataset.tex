@@ -1,0 +1,19 @@
+\begin{table}[h]
+\centering
+\caption{Dataset summary. Isolates and per-drug phenotype label counts after quality-control filtering (3 outliers removed: ERR1034652, ERR1035353, ERR1213920).}
+\label{tab:dataset}
+\begin{tabular}{lrrr}
+\toprule
+Drug & Labelled isolates & Resistant, n (\%) & Susceptible, n (\%) \\
+\midrule
+Rifampicin   & 9{,}630 & 7{,}144 (74.2\%) & 2{,}486 (25.8\%) \\
+Isoniazid    & 9{,}580 & 8{,}238 (86.0\%) & 1{,}342 (14.0\%) \\
+Ethambutol   & 8{,}196 & 4{,}082 (49.8\%) & 4{,}114 (50.2\%) \\
+Pyrazinamide & 5{,}749 & 2{,}610 (45.4\%) & 3{,}139 (54.6\%) \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize
+Total isolates in the final feature matrix: 9{,}798. Feature count: 2{,}693 nucleotide-encoded SNP positions across nine AMR genes (\emph{rpoB}; \emph{katG}, \emph{inhA}, \emph{fabG1}; \emph{embB}, \emph{embA}, \emph{embC}; \emph{pncA}, \emph{rpsA}). The underlying phenotype table covers 23{,}051 isolates across 23 drugs; only the four first-line drugs above are modelled here.
+\end{table}

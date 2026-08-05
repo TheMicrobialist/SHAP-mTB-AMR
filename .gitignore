@@ -28,10 +28,16 @@ reference/*.gff
 __pycache__/
 *.pyc
 
+# Personal scratch space (never committed)
+private/
+
 # SLURM outputs
 *.out
 *.err
 
 #pickle files
 scripts/results/*.pkl
-*.pkl
+*.pklresults/model_objects_multi.pkl
+models/
+test_data/
+results/model_objects_multi.pkl

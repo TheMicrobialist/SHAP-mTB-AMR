@@ -1,0 +1,19 @@
+\begin{table}[h]
+\centering
+\caption{Multi-label (all four RIPE drugs predicted jointly via \texttt{MultiOutputClassifier}) benchmark on the 5{,}180 isolates labelled for all four drugs; plain $K$-fold CV (stratified CV is not defined for multi-label targets).}
+\label{tab:multilabel}
+\begin{tabular}{lrrr}
+\toprule
+Model & Hamming Loss $\downarrow$ & Subset Acc. $\uparrow$ & Macro AUC-ROC $\uparrow$ \\
+\midrule
+Random Forest    & 0.1361 & 0.5907 & 0.9194 \\
+LightGBM         & 0.1407 & 0.5753 & 0.9182 \\
+XGBoost          & 0.1614 & 0.5106 & 0.9142 \\
+Linear SVM (SGD) & 0.1783 & 0.5010 & 0.8282 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize
+Subset accuracy requires an exact match across all four drug labels simultaneously, a substantially stricter criterion than the per-drug AUC-ROC values in Tables~\ref{tab:perdrug}--\ref{tab:modelcomparison}.
+\end{table}

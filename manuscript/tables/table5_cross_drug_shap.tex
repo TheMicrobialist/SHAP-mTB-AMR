@@ -1,0 +1,21 @@
+\begin{table}[h]
+\centering
+\caption{Illustrative cross-drug SHAP attribution shift for the rifampicin--isoniazid (RIF--INH) pair: mean $|\mathrm{SHAP}|$ for a shared feature position when isolates are resistant to only one of the two drugs versus co-resistant to both, ranked by the top five positions with the largest attribution shift (max\_abs\_delta).}
+\label{tab:crossdrug}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+Position & Gene & RIF-only & INH-only & RIF, co-resist. & INH, co-resist. \\
+\midrule
+pos\_2155168 & katG & 0.026 & 0.239 & 0.011 & 0.122 \\
+pos\_761139  & rpoB & 0.120 & 0.002 & 0.040 & 0.002 \\
+pos\_761155  & rpoB & 0.289 & 0.023 & 0.271 & 0.018 \\
+pos\_761110  & rpoB & 0.052 & 0.011 & 0.065 & 0.008 \\
+pos\_2154724 & katG & 0.010 & 0.022 & 0.006 & 0.009 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize
+The full drug pair yields 41 shared-position rows; the five with the largest attribution shift are shown. pos\_761155 (rpoB S450L) and pos\_2155168 (katG S315T) are the two dominant, independently validated resistance-determining mutations for rifampicin and isoniazid respectively; their recurrence as top-attribution features in each other's models is consistent with population-level co-occurrence of RIF and INH resistance (i.e. MDR-TB) rather than a direct causal cross-drug mechanism.
+\end{table}

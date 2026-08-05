@@ -1,0 +1,56 @@
+\section*{Methods}
+
+\subsection*{Data source and reference}
+
+Raw paired-end FASTQ files for 9{,}798 \emph{M. tuberculosis} isolates (after quality-control filtering, described below) were downloaded from the European Nucleotide Archive (ENA) and the NCBI Sequence Read Archive (SRA). All source data are publicly available and de-identified; no patient-identifiable information is included. Phenotypic drug-susceptibility labels were compiled into a master resistance table covering 23{,}051 isolates and 23 drugs in total, of which the four first-line drugs -- rifampicin, isoniazid, ethambutol, and pyrazinamide -- were modelled in this study. Reads were aligned to the H37Rv reference genome (RefSeq NC\_000962.3) \cite{cole1998deciphering}, and gene coordinates were taken from the corresponding GFF annotation (GCF\_000195955.2), restricted to nine genes with established resistance associations: \emph{rpoB} (rifampicin); \emph{katG}, \emph{inhA}, \emph{fabG1} (isoniazid); \emph{embB}, \emph{embA}, \emph{embC} (ethambutol); \emph{pncA}, \emph{rpsA} (pyrazinamide).
+
+\subsection*{Sequence processing pipeline}
+
+The complete framework, from raw sequencing reads through to model interpretation and deployment, is summarized in Fig.~\ref{fig:pipeline}. All processing was performed on the Digital Research Alliance of Canada HPC cluster, orchestrated as per-sample SLURM array jobs with resume protection (skipping samples whose output VCF already existed) and cleanup of intermediate FASTQ/BAM files to conserve scratch storage. The pipeline consisted of the following steps, in order:
+
+\begin{enumerate}
+\item \textbf{Download} -- FASTQ retrieval from ENA/SRA via SRA-tools.
+\item \textbf{Accession mapping} -- BioSample-to-run accession mapping to resolve one or more sequencing runs per isolate.
+\item \textbf{Quality control} -- adapter trimming and quality filtering with fastp \cite{chen2018fastp}.
+\item \textbf{Alignment} -- read mapping to H37Rv with BWA-MEM \cite{li2013bwamem}, followed by sorting with SAMtools.
+\item \textbf{Variant calling} -- \texttt{bcftools mpileup | bcftools call -mv}, followed by quality filtering (QUAL~$\geq 20$, MQ~$\geq 30$) \cite{danecek2021twelve}.
+\end{enumerate}
+
+Software versions and key parameters are summarized in Table~\ref{tab:tools}.
+
+\begin{table}[h]
+\centering
+\caption{Processing pipeline tool versions and parameters.}
+\label{tab:tools}
+\begin{tabular}{llll}
+\toprule
+Step & Tool & Version & Parameters \\
+\midrule
+Quality control  & fastp          & 1.0.1 & default \\
+Alignment        & BWA-MEM        & 0.7.18 & default \\
+Variant calling   & bcftools call  & 1.22 & default \\
+VCF filtering     & bcftools filter & 1.22 & QUAL~$\geq20$, MQ~$\geq30$ \\
+Reference genome  & H37Rv          & NC\_000962.3 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Feature matrix construction}
+
+Per-sample filtered VCFs were merged into a single long-format table of 705{,}226 unique variant positions genome-wide. A quality-control pass computed the per-sample variant-count distribution and flagged three isolates (ERR1034652, ERR1035353, ERR1213920) with more than 10{,}000 variants each, well outside the bulk of the distribution and consistent with contamination or platform-specific artefacts; these were excluded from the final dataset. The remaining variants were filtered to (i) single-nucleotide variants only (indels excluded), and (ii) positions intersecting the nine AMR genes listed above. Each retained position was encoded as a single integer column per isolate: 0 for the reference (H37Rv) allele, and 1/2/3/4 for A/T/C/G, respectively; a position absent from an isolate's VCF was assumed to match the reference and encoded as 0. Isolate-level phenotype labels (resistant/susceptible) were joined per drug from the master resistance table. The resulting feature matrix comprises 9{,}798 isolates by 2{,}693 features, with per-drug label availability summarized in Table~\ref{tab:dataset}.
+
+\subsection*{Model training and benchmarking}
+
+For each of the four drugs independently, we trained and benchmarked seven classifiers on an 80/20 stratified train/test split, with 5-fold stratified cross-validation (CV) on the training partition: Random Forest \cite{breiman2001random} (300 trees, \texttt{class\_weight="balanced"}), LightGBM \cite{ke2017lightgbm}, XGBoost \cite{chen2016xgboost}, a linear support vector machine trained via stochastic gradient descent (SGD), and three regularized logistic regression variants (L1/Lasso, ElasticNet, L2/Ridge). Performance was assessed via test-set accuracy and AUC-ROC, and 5-fold CV accuracy and AUC-ROC (mean $\pm$ standard deviation across folds).
+
+To assess joint, multi-drug prediction, we additionally trained a multi-label extension using scikit-learn's \texttt{MultiOutputClassifier} wrapper (Random Forest, LightGBM, XGBoost, and linear SVM base estimators) on the 5{,}180 isolates with phenotype labels available for all four drugs simultaneously. Because stratified cross-validation is not defined for multi-label targets, plain $K$-fold CV was used. Performance was assessed via per-drug and macro-averaged AUC-ROC, Hamming loss (fraction of individual drug labels mispredicted), and subset accuracy (fraction of isolates for which all four drug labels are predicted correctly simultaneously).
+
+\subsection*{SHAP interpretability analysis}
+
+For each drug, the Random Forest model (identified as the best-performing algorithm across all four drugs; see Results) was retrained restricted to its top-50 features by impurity-based importance, and interpreted using \texttt{shap.TreeExplainer} with a 100-sample interventional background dataset \cite{lundberg2017unified}. This produces, for every isolate and every retained feature, a signed SHAP value indicating that feature's contribution to the predicted log-odds of resistance, which we summarize as beeswarm/summary plots per drug (Figure~\ref{fig:shap_summary}) and validate qualitatively against known resistance-determining mutations.
+
+To examine whether feature attributions differ under co-resistance, we performed a cross-drug attribution analysis for all six pairwise combinations of the four drugs. For each drug pair, isolates were partitioned into four resistance-profile groups (resistant to drug A only, drug B only, both -- co-resistant --, or neither), and for each feature shared between the two drugs' top-feature sets we computed the group-wise mean absolute SHAP value and a "delta" metric quantifying the shift in attribution between the single-drug-resistant and co-resistant groups.
+
+\subsection*{Software and computing environment}
+
+Sequence processing used a dedicated conda environment (\texttt{tb-wgs-pipeline}; bioconda/conda-forge channels) containing fastp, BWA, SAMtools, bcftools, and SRA-tools. Downstream feature engineering, modelling, and interpretation used Python with pandas, NumPy, scikit-learn, LightGBM, XGBoost, SHAP, and matplotlib. All HPC jobs were scheduled via SLURM on the Digital Research Alliance of Canada cluster.

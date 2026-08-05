@@ -4,10 +4,10 @@ Resistant: 8238 (86.0%)
 Susceptible: 1342 (14.0%)
 
 Accuracy : 0.9045
-AUC-ROC  : 0.9475
+AUC-ROC  : 0.9473
 
-CV Accuracy : 0.9055 +/- 0.0038
-CV AUC-ROC  : 0.9464 +/- 0.0077
+CV Accuracy : 0.9056 +/- 0.0037
+CV AUC-ROC  : 0.9462 +/- 0.0074
 
               precision    recall  f1-score   support
 

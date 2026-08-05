@@ -1,0 +1,9 @@
+# LaTeX build intermediates (main.pdf and main.bbl are committed deliberately)
+*.aux
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc

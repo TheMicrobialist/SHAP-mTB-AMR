@@ -196,6 +196,92 @@ This dataset is intended for:
 
 ---
 
+## SHAP Interpretation Agent
+
+`scripts/shap_agent.py` turns a raw SHAP attribution table into a written
+interpretation. It is a tool-using agent: rather than recalling what a position
+means, it looks the evidence up.
+
+| Tool | Returns |
+|---|---|
+| `lookup_position` | Gene, codon, and amino-acid change — computed from `reference/H37Rv.fasta`, not a hardcoded table |
+| `cohort_frequency` | How often the position is mutated in resistant vs susceptible isolates across the 9,798-isolate cohort |
+| `cross_drug_context` | Whether attribution shifts under co-resistance, from the six pairwise analyses |
+| `get_shap_detail` | The full SHAP table for a drug, beyond the top 20 |
+
+```bash
+# Full report on all four drugs
+python3 scripts/shap_agent.py \
+    --predictions results/predictions/ERR040120_predictions.json
+
+# A specific question
+python3 scripts/shap_agent.py \
+    --predictions results/predictions/ERR040120_predictions.json \
+    --question "Why is this isolate predicted pyrazinamide-resistant?"
+
+# Show which tools were called, to check claims against evidence
+python3 scripts/shap_agent.py --predictions ... --trace
+```
+
+The agent is also available as an **Interpretation** panel in the dashboard, and
+as an importable module (`interpret()` for a JSON path, `interpret_results()`
+for an in-memory dict).
+
+**Credentials.** Running the agent needs `pip install anthropic` and either
+`export ANTHROPIC_API_KEY=...` or an `ant auth login` profile. Without one, the
+CLI exits with a message and the dashboard panel shows a notice — nothing else
+is affected.
+
+**The tools work offline.** They are plain functions over local data and need no
+API key, so the evidence layer can be tested independently of the model:
+
+```bash
+python3 scripts/test_shap_agent_tools.py    # 33 checks, no network calls
+```
+
+The amino-acid mapping self-validates before reporting any residue: all nine
+gene ORFs must have a clean reading frame, and three independently known
+mutations (*rpoB* S450L, *katG* S315T, *embB* M306) must reproduce. If either
+check fails the agent reports gene and coordinate only, rather than guessing a
+residue.
+
+**Limitations.** SHAP attribution shows what the model relied on, not what
+causes resistance. Signal shared across drugs usually reflects co-occurrence in
+MDR strains rather than a shared mechanism, and ethambutol/pyrazinamide
+attributions are more diffuse and less reliable than rifampicin/isoniazid. The
+agent is prompted to respect these; they remain limitations of the underlying
+models. Research use only — not a substitute for phenotypic DST.
+
+### To do
+
+- [ ] **Verify the agent end-to-end.** The four tools are tested (33/33 offline
+      checks) and the agent loop is wired, but no live run has been made — the
+      machine it was built on had no API credentials. See the command below.
+- [ ] Tune the guardrail wording in `scripts/shap_agent_prompts.py` once real
+      output has been reviewed.
+- [ ] Confirm the dashboard **Interpretation** panel renders correctly with
+      credentials set (the no-credential notice path is already verified).
+
+To close the first item — install the `anthropic` package, set an API key, and
+run the agent end-to-end with `--trace`:
+
+```bash
+pip install anthropic
+export ANTHROPIC_API_KEY=...
+
+python3 scripts/shap_agent.py \
+    --predictions results/predictions/ERR040120_predictions.json --trace
+```
+
+`--trace` prints every tool call, so the report's claims can be checked against
+the evidence actually retrieved. The failure mode to watch for is a fluent
+paragraph asserting something no tool returned. Expected on the ERR040120 demo
+isolate: rifampicin and isoniazid attributed to *rpoB* S450L and *katG* S315T
+with high confidence, ethambutol and pyrazinamide flagged as diffuse and
+lower-confidence.
+
+---
+
 ## Authors
 
 | Name | Location | Contact |
