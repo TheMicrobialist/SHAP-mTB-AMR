@@ -1,4 +1,4 @@
-# Reading list — work needed to reach a target venue
+# Reading list: work needed to reach a target venue
 
 Papers and standards grouped by which gap each closes. Gaps and priority come
 from `../submission/readiness-checklist.md`. All metadata verified 2026-08-05
@@ -6,10 +6,10 @@ against PubMed / Crossref / arXiv.
 
 Each entry uses the same four fields:
 
-- **Gives** — what the paper provides
-- **Use for** — how it applies here
-- **Needs** — prerequisites before it can be used
-- **Effort** — low / medium / high
+- **Gives**: what the paper provides
+- **Use for**: how it applies here
+- **Needs**: prerequisites before it can be used
+- **Effort**: low / medium / high
 
 | # | File | Gap | Priority |
 |---|---|---|---|
@@ -21,16 +21,16 @@ Each entry uses the same four fields:
 
 ## Order
 
-1. **01** — decides whether the cross-drug result is real. It is the only
+1. **01**: decides whether the cross-drug result is real. It is the only
    novelty claimed.
-2. **02** — converts "we don't claim competitive accuracy" into a measurement.
-3. **03** — cheap, mechanical, hard gate for NeurIPS. Do early, not at deadline.
-4. **04** — the headline contribution currently has no faithfulness evidence.
-5. **05** — highest ceiling, highest cost.
+2. **02**: converts "we don't claim competitive accuracy" into a measurement.
+3. **03**: cheap, mechanical, hard gate for NeurIPS. Do early, not at deadline.
+4. **04**: the headline contribution currently has no faithfulness evidence.
+5. **05**: highest ceiling, highest cost.
 
 ## Caution
 
-Reading will not fix this paper. The gaps are experimental — lineage
+Reading will not fix this paper. The gaps are experimental. Lineage
 stratification must be **run**, comparators must be **executed** on a shared
 test set. Four of the key papers below are already cited in `../references.bib`;
 they were never used.
