@@ -16,7 +16,9 @@ Modes:
 import gzip
 import json
 import os
+import sys
 import warnings
+from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
@@ -27,6 +29,17 @@ import joblib
 import streamlit as st
 
 warnings.filterwarnings("ignore")
+
+# Optional interpretation agent. Absent on deployments that ship only the
+# dashboard (e.g. a HuggingFace Space without scripts/), or when the anthropic
+# package isn't installed — the rest of the app works either way.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+try:
+    import shap_agent
+    _AGENT_AVAILABLE = True
+except Exception:
+    shap_agent = None
+    _AGENT_AVAILABLE = False
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 DRUGS       = ["RIFAMPICIN", "ISONIAZID", "ETHAMBUTOL", "PYRAZINAMIDE"]
@@ -387,6 +400,49 @@ for drug, res in all_results.items():
                 "Direction":  "→ Resistant" if f["shap_value"] > 0 else "→ Susceptible"
             })
         st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+
+# Agent interpretation
+st.markdown("---")
+st.markdown("### Interpretation")
+
+if not _AGENT_AVAILABLE:
+    st.info(
+        "The interpretation agent is not configured. It needs the `anthropic` "
+        "package and an API key:\n\n"
+        "```\npip install anthropic\nexport ANTHROPIC_API_KEY=...\n```\n\n"
+        "Everything above works without it."
+    )
+elif not shap_agent.credentials_available():
+    st.info(
+        "No Anthropic credentials found. Set `ANTHROPIC_API_KEY` (or run "
+        "`ant auth login`) to enable written interpretation of these "
+        "attributions. Everything above works without it."
+    )
+else:
+    st.caption(
+        "Generates a written interpretation of the SHAP attributions above. The "
+        "agent looks up each position's amino-acid change, its prevalence in the "
+        "9,798-isolate training cohort, and its cross-drug context before writing."
+    )
+    question = st.text_input(
+        "Optional question",
+        placeholder="e.g. Why is this isolate predicted pyrazinamide-resistant?",
+    )
+    if st.button("Interpret these results", type="primary"):
+        with st.spinner("Investigating attributions…"):
+            try:
+                report = shap_agent.interpret_results(
+                    all_results, sample_name, question=question or None
+                )
+                st.markdown(report)
+                st.download_button(
+                    label="⬇️ Download interpretation (Markdown)",
+                    data=report,
+                    file_name=f"{sample_name}_interpretation.md",
+                    mime="text/markdown",
+                )
+            except Exception as exc:
+                st.error(f"Interpretation failed: {exc}")
 
 # Download
 st.markdown("---")

@@ -28,6 +28,9 @@ reference/*.gff
 __pycache__/
 *.pyc
 
+# Personal scratch space (never committed)
+private/
+
 # SLURM outputs
 *.out
 *.err
