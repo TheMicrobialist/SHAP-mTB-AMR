@@ -1,41 +1,36 @@
 # Reading list — work needed to reach a target venue
 
-Papers and standards this project should draw on, organised by the gap each one
-closes. Gaps and their priority come from `../submission/readiness-checklist.md`;
-this file says *what to read and use* for each.
+Papers and standards grouped by which gap each closes. Gaps and priority come
+from `../submission/readiness-checklist.md`. All metadata verified 2026-08-05
+against PubMed / Crossref / arXiv.
 
-Every entry below was verified 2026-08-05 against PubMed, Crossref or arXiv.
-Nothing here is already cited in the manuscript — for what is, see
-`../references.bib` (24 entries, all verified).
+Each entry uses the same four fields:
 
-| File | Covers |
-|---|---|
-| `README.md` | This index and the priority order |
-| `01-lineage-and-population-structure.md` | Gap 1 — the blocking one |
-| `02-benchmarking-and-comparison.md` | Gaps 2–4 — comparison, external validation, statistics |
-| `03-dataset-paper-standards.md` | NeurIPS E&D hard requirements |
-| `04-interpretability-methods.md` | Gap 6 — SHAP under dependence, and proving attributions are faithful |
-| `05-representation-and-transfer.md` | Gap 5 — beyond position-encoded SNPs |
+- **Gives** — what the paper provides
+- **Use for** — how it applies here
+- **Needs** — prerequisites before it can be used
+- **Effort** — low / medium / high
 
-## Priority
+| # | File | Gap | Priority |
+|---|---|---|---|
+| 01 | `01-lineage-and-population-structure.md` | Lineage confounding | **Blocking** |
+| 02 | `02-benchmarking-and-comparison.md` | Comparison, external validation, stats | High |
+| 03 | `03-dataset-paper-standards.md` | NeurIPS hard requirements | High, mechanical |
+| 04 | `04-interpretability-methods.md` | SHAP dependence + faithfulness | Medium |
+| 05 | `05-representation-and-transfer.md` | Beyond position-encoded SNPs | Next paper |
 
-Read in this order. The first two decide whether the paper has a defensible
-novel claim at all; the rest raise the ceiling.
+## Order
 
-1. **`01`** — lineage. Without it the cross-drug result is uninterpretable, and
-   that result is the only novelty the paper claims.
-2. **`02`** — benchmarking. Converts "we don't claim competitive accuracy" into
-   a measured statement, whichever way it falls.
-3. **`03`** — dataset standards. Cheap, mechanical, and a hard gate for NeurIPS
-   Evaluations & Datasets. Do it early so it is not a deadline scramble.
-4. **`04`** — interpretability. The headline contribution currently rests on an
-   assumption the data violates; this is how to fix or bound it.
-5. **`05`** — representation. Highest ceiling, highest cost. A next-paper
-   direction more than a revision item.
+1. **01** — decides whether the cross-drug result is real. It is the only
+   novelty claimed.
+2. **02** — converts "we don't claim competitive accuracy" into a measurement.
+3. **03** — cheap, mechanical, hard gate for NeurIPS. Do early, not at deadline.
+4. **04** — the headline contribution currently has no faithfulness evidence.
+5. **05** — highest ceiling, highest cost.
 
-## One caution
+## Caution
 
-Reading more will not fix this paper. The gaps are experimental, not
-bibliographic — lineage stratification has to be *run*, comparators have to be
-*executed* on a shared test set. Use this list to do those things correctly,
-not as a substitute for doing them.
+Reading will not fix this paper. The gaps are experimental — lineage
+stratification must be **run**, comparators must be **executed** on a shared
+test set. Four of the key papers below are already cited in `../references.bib`;
+they were never used.

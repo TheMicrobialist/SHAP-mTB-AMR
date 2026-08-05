@@ -1,102 +1,64 @@
 # 04 — Interpretability: dependence and faithfulness
 
-**Gap 6.** SHAP is the paper's headline contribution and currently rests on an
-independence assumption this data violates — linkage disequilibrium, clonal
-population structure, and the co-resistance correlation the paper itself reports.
-The Discussion concedes this. Fixing or bounding it is what turns a conceded
-weakness into a methodological contribution.
-
-Two of the three below are already cited but not acted on.
+**Gap 6.** SHAP is the headline contribution and rests on an independence
+assumption this data violates — linkage disequilibrium, clonal population
+structure, and the co-resistance correlation the paper itself reports.
 
 ---
 
-## The problem (already cited)
+## The problem
 
-### Aas et al. 2021 — Shapley values with dependent features
+### Aas et al. 2021 — Shapley values with dependent features · *already cited*
+Artificial Intelligence 298:103502 · [doi:10.1016/j.artint.2021.103502](https://doi.org/10.1016/j.artint.2021.103502)
 
-**Artificial Intelligence 2021;298:103502** ·
-[doi:10.1016/j.artint.2021.103502](https://doi.org/10.1016/j.artint.2021.103502)
+- **Gives** — proof that marginal/interventional estimators evaluate the model off the data manifold under dependence; conditional approximations that don't; the `shapr` implementation
+- **Use for** — re-deriving attributions. Our `TreeExplainer` call uses a 100-sample **interventional** background — exactly the flagged setting
+- **Needs** — the existing models and feature matrix only
+- **Effort** — medium
+- **The result is the contribution** — do interventional and conditional attributions actually differ here, and does the cross-drug result survive the switch? Publishable either way
 
-Shows that standard (marginal/interventional) Shapley estimators evaluate the
-model off the data manifold when features are dependent, and gives conditional
-approximations that do not.
+### Kumar et al. 2020 — the conceptual limit · *already cited*
+ICML 2020 · [arXiv:2002.11097](https://arxiv.org/abs/2002.11097)
 
-**Use it for:** re-deriving the attributions. This is the direct fix. Our
-`TreeExplainer` call uses a 100-sample **interventional** background, which is
-precisely the setting the paper identifies as problematic. Their `shapr`
-implementation gives conditional alternatives to compare against.
-
-The comparison itself is the contribution: *do the interventional and conditional
-attributions actually differ on this data, and does the cross-drug result
-survive the switch?* That is a concrete experiment with a publishable answer
-either way, and no new sequencing.
-
-### Kumar et al. 2020 — the conceptual limit
-
-*Problems with Shapley-value-based explanations as feature importance measures.*
-**ICML 2020** · [arXiv:2002.11097](https://arxiv.org/abs/2002.11097)
-
-Shapley values are a mathematical allocation, not a causal or human-facing
-explanation; recovering them for causal purposes needs assumptions the method
-does not supply.
-
-**Use it for:** bounding the claims. Already cited in the Discussion — keep it
-there, and let it constrain how the agent's natural-language output is framed.
-An interpretation layer that says "the model relied on X" is defensible; one
-that implies "X causes resistance" is not.
+- **Gives** — Shapley values are a mathematical allocation, not a causal or human-facing explanation
+- **Use for** — bounding claims, including how the agent phrases output. "The model relied on X" is defensible; "X causes resistance" is not
+- **Needs** — nothing
+- **Effort** — low
 
 ---
 
-## Proving the attributions are faithful (not yet cited)
+## Proving attributions are faithful — *not yet cited*
 
-The paper validates SHAP by observing that it recovers *rpoB* S450L and *katG*
-S315T — and the Discussion already concedes this is weak, since any competent
-model would find the most prevalent mutations globally. These give a real test.
+The paper validates SHAP by noting it recovers *rpoB* S450L and *katG* S315T.
+The Discussion already concedes this is weak: any competent model finds the most
+prevalent mutations globally. These give a real test.
 
 ### Adebayo et al. 2018 — Sanity Checks for Saliency Maps
+NeurIPS 2018 · [proceedings](https://papers.neurips.cc/paper/8160-sanity-checks-for-saliency-maps) · [arXiv:1810.03292](https://arxiv.org/abs/1810.03292)
 
-**NeurIPS 2018** ·
-[proceedings](https://papers.neurips.cc/paper/8160-sanity-checks-for-saliency-maps) ·
-[arXiv:1810.03292](https://arxiv.org/abs/1810.03292)
-
-Randomization tests showing several widely used attribution methods produce
-explanations independent of both model parameters and training labels — i.e.
-they look plausible while explaining nothing.
-
-**Use it for:** a model-randomization check. Retrain on shuffled labels and
-confirm the attributions change. If S450L still tops the list under a randomised
-model, the "recovers known biology" claim collapses — and knowing that is worth
-more than the claim.
+- **Gives** — randomization tests exposing attribution methods that are independent of model parameters and labels, i.e. plausible-looking but empty
+- **Use for** — retrain on shuffled labels, confirm attributions change
+- **Needs** — a retraining loop; models retrain in minutes here
+- **Effort** — low
+- **Stakes** — if S450L still tops the list under a randomised model, the "recovers known biology" claim collapses. Worth knowing
 
 ### Hooker et al. 2019 — ROAR
+NeurIPS 2019 · [arXiv:1806.10758](https://arxiv.org/abs/1806.10758)
 
-*A Benchmark for Interpretability Methods in Deep Neural Networks.*
-**NeurIPS 2019** · [arXiv:1806.10758](https://arxiv.org/abs/1806.10758)
-
-RemOve-And-Retrain: delete the top-*t*% of features by attribution, retrain, and
-measure the performance drop. A faithful attribution causes a steep drop; an
-unfaithful one does not.
-
-**Use it for:** a quantitative faithfulness measure, which the paper currently
-lacks entirely. It is cheap here — the models retrain in minutes on 2,693
-features, unlike the vision settings ROAR was designed for. Running it across
-all four drugs would give the interpretability claim actual evidence, and would
-also test whether the diffuse pyrazinamide attributions carry any signal at all.
+- **Gives** — RemOve-And-Retrain: delete top-*t*% features by attribution, retrain, measure the drop. Steep drop = faithful
+- **Use for** — the quantitative faithfulness number the paper currently lacks entirely; also tests whether diffuse PZA attributions carry any signal
+- **Needs** — repeated retraining; cheap at 2,693 features, unlike the vision settings ROAR was built for
+- **Effort** — low–medium
 
 ---
 
-## What to do with this
+## Do this
 
-1. Re-derive attributions with conditional (dependence-aware) estimation and
-   compare against the current interventional ones.
-2. Quantify the effect of the top-50 impurity pre-selection, which currently
-   biases attributions in an unmeasured way.
-3. Run a model-randomization sanity check per Adebayo et al.
-4. Run ROAR per drug for a faithfulness number.
-5. Re-examine the cross-drug result under (1) — jointly with the lineage
-   stratification in `01`, since dependence and population structure are the
-   same underlying problem seen from two angles.
+1. Re-derive attributions with conditional estimation; compare to interventional.
+2. Quantify the effect of the top-50 impurity pre-selection (currently unmeasured bias).
+3. Model-randomization sanity check (Adebayo).
+4. ROAR per drug for a faithfulness number.
+5. Re-examine cross-drug under (1), **jointly with `01`** — dependence and population structure are one problem seen from two angles.
 
-Items 3 and 4 are the ones that would most change how a reviewer reads the
-paper: they convert "we applied SHAP" into "we applied SHAP and tested whether
-it was telling us anything."
+Items 3–4 most change how a reviewer reads the paper: they turn "we applied
+SHAP" into "we tested whether SHAP told us anything."
