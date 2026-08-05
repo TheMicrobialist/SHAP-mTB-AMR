@@ -1,109 +1,71 @@
-# Submission planning — FORUM-TB manuscript
+# Submission planning
 
-Assessment compiled **2026-08-05**. Deadlines were taken from official calls for
-papers where available; anything estimated is marked. **Re-check every date on
-the official site before planning around it** — deadlines move and get extended.
+Assessed 2026-08-05. Estimated dates are marked; verify every date on the
+official CFP before relying on it. Gaps and per-venue prep: `readiness-checklist.md`.
 
-Three documents:
+## Verdict
 
-| File | Purpose |
-|---|---|
-| `README.md` (this file) | Headline recommendation, deadline table, decision |
-| `venue-assessment.md` | Per-venue fit analysis and why each verdict was reached |
-| `readiness-checklist.md` | What the paper is missing, prioritised, mapped to venues |
-
----
-
-## The headline
-
-**This manuscript is not currently competitive at the main tracks of ICLR, ICML,
-NeurIPS or AAAI, and submitting it there would very likely waste a review
-cycle.** That is not a stylistic judgement — it follows from what the paper
-itself says. The Discussion states plainly that we "do not claim competitive
-accuracy," reports performance below TB-Profiler, GenTB and DeepAMR, and uses
-entirely off-the-shelf methods (random forest, LightGBM, XGBoost, `TreeExplainer`).
-Main-track ML review is organised around methodological or empirical novelty,
-and this work is deliberately neither. Its honesty is a virtue for a resource
-paper and a fatal weakness for a main-track ML submission.
-
-The contribution is a **dataset, a reproducible pipeline, and an interpretability
-layer**. Venues exist for exactly that, and two are worth pursuing:
-
-**Near term — ML4H 2026 Findings track. Deadline 2026-09-10 (36 days).**
-The Findings track explicitly solicits "valuable resources," "novel datasets,"
-and "exciting preliminary directions," and accepts non-traditional artifacts
-without requiring methodological novelty. Four pages, non-archival. The paper
-is already written; this is a condensation exercise, not new science. Low cost,
-plausible acceptance, and non-archival status leaves the work free for a fuller
-venue later.
-
-**Aspirational — NeurIPS 2027 Evaluations & Datasets track. Deadline ~May 2027
-(estimated, ~9 months).** This is the strongest genuinely top-tier fit, because
-the track was built for dataset and benchmark contributions and explicitly
-welcomes domain-specific work. It also reviews to main-conference stringency,
-so the gaps in `readiness-checklist.md` have to be closed first. Nine months is
-enough time to close them. Note the track was renamed from "Datasets &
-Benchmarks" for 2026.
-
-Pursuing both is coherent: ML4H Findings is non-archival, so it does not burn
-the NeurIPS option.
-
----
+This is a **resource and interpretability contribution**, not a methods or
+state-of-the-art paper: off-the-shelf models, performance below TB-Profiler,
+GenTB and DeepAMR, and a dataset derived from public ENA/SRA runs — all of
+which the Discussion states itself. Main ML tracks review on the novelty this
+work deliberately does not claim, so ICLR / ICML / AAAI / NeurIPS-main are
+near-certain rejects. Dataset and health-ML tracks are the right home, and the
+candid Discussion is an asset there rather than a liability.
 
 ## Deadlines
 
-Days counted from 2026-08-05.
+Days from 2026-08-05.
 
-| Venue | Deadline | Days | Fit | Verdict |
-|---|---|---:|---|---|
-| **ML4H 2026 — Findings** | 2026-09-10 | 36 | Strong | **Submit** |
-| ML4H 2026 — Proceedings | 2026-09-10 | 36 | Moderate | Optional; auto-falls back to Findings if rejected |
-| AAAI 2027 | 2026-09-16 | 42 | Weak | Skip |
-| ICLR 2027 | 2026-09-25 | 51 | Weak | Skip |
-| ICML 2027 | 2027-01-22 (abs 01-16) | 170 | Weak | Skip |
-| CHIL 2027 | ~Feb 2027 *(est.)* | ~180 | Moderate | Consider if gaps closed |
-| KDD 2027 | ~Feb 2027 *(est., unverified)* | ~190 | Weak–moderate | Skip |
-| **NeurIPS 2027 — Evaluations & Datasets** | ~May 2027 *(est.)* | ~270 | **Strongest top-tier** | **Target** |
-| ISMB/ECCB 2027 | TBA | — | Strong (domain) | Watch — Copenhagen |
+| Venue | Deadline | Days | Verdict |
+|---|---|---:|---|
+| **ML4H 2026 — Findings** | 2026-09-10 | 36 | **Submit** — solicits datasets/resources, no novelty bar, 4pp, non-archival |
+| ML4H 2026 — Proceedings | 2026-09-10 | 36 | Optional — 8pp archival; auto-falls back to Findings if rejected, so near-free |
+| AAAI 2027 | 2026-09-16 | 42 | Skip — main track wants a technical contribution; no runway to build one |
+| ICLR 2027 | 2026-09-25 | 51 | Skip — no new method, results below existing tools |
+| ICML 2027 | 2027-01-22 (abs 01-16) | 170 | Skip — same bar as ICLR |
+| CHIL 2027 | ~Feb 2027 *(est.)* | ~180 | Consider — health-focused, archival, if gaps partly closed |
+| KDD 2027 | ~Feb 2027 *(est., unverified)* | ~190 | Skip — rewards scale/deployment impact |
+| **NeurIPS 2027 — Evaluations & Datasets** | ~May 2027 *(est.)* | ~270 | **Target** — built for dataset/benchmark work; main-track review stringency |
+| ISMB/ECCB 2027 | TBA | — | Watch — natural domain fit, Copenhagen |
 
-NeurIPS 2026 Evaluations & Datasets closed 2026-05-06 and is no longer an option
-this cycle.
+NeurIPS 2026 Evaluations & Datasets closed 2026-05-06. The track was renamed
+from "Datasets & Benchmarks" this year.
 
----
+## Plan
 
-## Recommended plan
+1. **By 2026-09-10** — condense to 4 pages for ML4H Findings. Lead with the
+   resource and interpretability layer; benchmark tables to the appendix. No
+   new experiments needed. Fill the author placeholders first.
+2. **Sept 2026 → May 2027** — work `readiness-checklist.md` in order. Lineage-aware
+   validation matters most: it decides whether the cross-drug result is
+   biological or confounded, and that is the paper's only novelty claim.
+3. **~May 2027** — submit the strengthened paper to NeurIPS Evaluations & Datasets.
 
-1. **Now → 2026-09-10.** Condense to a 4-page ML4H Findings submission. Lead
-   with the resource and the interpretability layer, not the accuracy numbers.
-   Keep the critical Discussion — at a Findings track, candour about
-   limitations reads as rigour rather than weakness.
-2. **In parallel.** Fill the author affiliations and Noah's email, which are
-   still `[INSERT ...]` placeholders in `main.tex`.
-3. **Sept 2026 → May 2027.** Work `readiness-checklist.md` in priority order.
-   The two that most change the paper's standing are lineage-aware validation
-   and a head-to-head comparison against TB-Profiler/GenTB/DeepAMR on a shared
-   test set.
-4. **~May 2027.** Submit the strengthened paper to NeurIPS Evaluations &
-   Datasets.
+ML4H Findings is non-archival, so step 1 does not foreclose step 3.
 
-### The honest alternative
+## Why NeurIPS E&D is the top-tier fit
 
-If the goal is a citable, archival publication rather than an ML-venue line on
-a CV, a domain journal is a better expected-value bet than any conference here:
-*Bioinformatics* (Application Note), *Microbial Genomics*, *BMC Bioinformatics*,
-or *PLOS Computational Biology*. These reward exactly what this work is —
-a documented, reproducible, openly released resource — and do not penalise the
-absence of methodological novelty. See `venue-assessment.md` for detail.
+The track explicitly welcomes domain-specific datasets and benchmarks, and
+requires submissions to state "what claims it supports, under what assumptions,
+and what limitations apply" — the register the Discussion is already written in.
+It reviews to main-conference stringency, hence the nine-month runway.
 
----
+## Journal alternative
+
+If the goal is an archival, citable publication rather than an ML-venue
+credential, journals beat every conference here on expected value — they judge
+a resource on whether it is correct, documented and useful:
+*Bioinformatics* (Application Note, ~2pp, dashboard front and centre),
+*Microbial Genomics*, *BMC Bioinformatics*, *Scientific Data*.
 
 ## Sources
 
-- NeurIPS 2026 Evaluations & Datasets CFP — https://neurips.cc/Conferences/2026/CallForEvaluationsDatasets
-- NeurIPS blog, track rename — https://blog.neurips.cc/2026/03/23/introducing-the-evaluations-datasets-track-at-neurips-2026/
-- ICLR 2027 CFP — https://iclr.cc/Conferences/2027/CallForPapers
-- ML4H 2026 CFP — https://ml4h.ahli.cc/submit/call-for-papers/
-- CHIL CFP — https://chil.ahli.cc/submit/call-for-papers/
-- AAAI 2027 — https://aaai.org/conference/aaai/aaai-27/
-- ICML 2027 — https://icml.cc/
-- ISMB/ECCB 2027 — https://www.iscb.org/ismbeccb2027/home
+[NeurIPS 2026 E&D CFP](https://neurips.cc/Conferences/2026/CallForEvaluationsDatasets) ·
+[track rename](https://blog.neurips.cc/2026/03/23/introducing-the-evaluations-datasets-track-at-neurips-2026/) ·
+[ICLR 2027](https://iclr.cc/Conferences/2027/CallForPapers) ·
+[ML4H 2026](https://ml4h.ahli.cc/submit/call-for-papers/) ·
+[CHIL](https://chil.ahli.cc/submit/call-for-papers/) ·
+[AAAI 2027](https://aaai.org/conference/aaai/aaai-27/) ·
+[ICML 2027](https://icml.cc/) ·
+[ISMB/ECCB 2027](https://www.iscb.org/ismbeccb2027/home)

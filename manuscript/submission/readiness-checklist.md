@@ -1,164 +1,87 @@
 # Readiness checklist
 
-What stands between the current manuscript and each target venue. Ordered by
-how much each item changes the paper's standing, not by effort.
+What stands between the manuscript and each venue. Ordered by how much each
+item changes the paper's standing, not by effort. Venue choice: `README.md`.
 
-Most of these are not invented here — they are the future-work items the
-manuscript's own Discussion already identifies. That is convenient: the paper
-has already argued why they matter.
-
----
+Most of these are the future-work items the Discussion already identifies — the
+paper has argued why they matter, so closing them is finishing an existing
+argument rather than opening a new one.
 
 ## Blocking for any submission
 
-- [ ] **Author affiliations.** `main.tex:30-31` still reads
-      `[INSERT AFFILIATION -- INSTITUTION, DEPARTMENT]` for both authors.
-- [ ] **Corresponding author email.** `main.tex:31` still reads
-      `[INSERT EMAIL]` on Noah LeGall's line.
-- [ ] **Confirm authorship order and contributions** with the co-author before
-      anything is submitted anywhere.
-- [ ] **LightGBM page numbers.** Secondary sources disagree (3146–3154 vs
-      3149–3157); NeurIPS proceedings are not Crossref-indexed. Resolve against
-      the published volume if the venue requires page numbers. Flagged in a
-      comment at the top of `references.bib`.
-
----
+- [ ] Author affiliations — `main.tex:30-31`, both still `[INSERT AFFILIATION ...]`
+- [ ] Corresponding author email — `main.tex:31`, `[INSERT EMAIL]` on N. LeGall
+- [ ] Confirm authorship order and contributions with the co-author
+- [ ] LightGBM page numbers — sources disagree (3146–3154 vs 3149–3157); resolve
+      if the venue requires pages. Noted at the top of `references.bib`.
 
 ## Scientific gaps, in priority order
 
-### 1. Lineage-aware validation — the one that matters most
+**1. Lineage-aware validation.** The cross-drug attribution result is the
+paper's most interesting finding and is currently uninterpretable — with a
+pooled design it is as consistent with population-structure confounding as with
+biology, and the Discussion says so. Assign lineage from the existing VCFs,
+re-run per-drug models with stratification or feature weighting (Billows et al.
+2023, cited, evaluated this exact setting), and re-run the cross-drug SHAP
+analysis within strata.
+*Blocks NeurIPS E&D, CHIL, PLOS Comp Biol. Not needed for ML4H Findings.*
 
-The cross-drug attribution result is the paper's most interesting finding and
-is currently uninterpretable: with a pooled, lineage-agnostic design it is as
-consistent with population-structure confounding as with anything biological,
-and the Discussion says so. Until this is resolved the paper's novel claim is
-unusable.
+**2. Head-to-head on a shared test set.** The Discussion correctly argues
+cross-study numbers are incomparable — which also means we have not shown where
+this pipeline stands. Run TB-Profiler, GenTB and if feasible DeepAMR on the same
+held-out isolates and report side by side, including where FORUM-TB loses. A
+negative result is publishable at a resource venue.
+*Blocks NeurIPS E&D, CHIL.*
 
-- [ ] Assign lineage to isolates (e.g. barcode-based typing from the existing VCFs).
-- [ ] Re-run per-drug models with lineage stratification or a feature-weighted
-      scheme (Billows et al. 2023, already cited, evaluated this exact setting).
-- [ ] Re-run the cross-drug SHAP analysis within lineage strata and report
-      whether the attribution shifts survive.
+**3. External validation.** Validate on isolates independent of the ENA/SRA
+training set. The CRyPTIC compendium (cited) offers quantitative MICs and would
+also separate the pyrazinamide label-noise question from the representation
+question.
+*Blocks NeurIPS E&D, PLOS Comp Biol.*
 
-**Blocks:** NeurIPS E&D, CHIL, PLOS Comp Biol. Not required for ML4H Findings.
+**4. Statistical rigour.** Random Forest "wins" on margins as small as 0.0015 CV
+AUC-ROC from a single split with no confidence intervals. Add repeated splits or
+nested CV, report CIs, and either test the ranking or drop the ranking claim.
+*Blocks any archival venue. Cheap, and disproportionately improves reviewer confidence.*
 
-### 2. Head-to-head comparison on a shared test set
+**5. Representation.** Add indel and structural-variant features — expected to
+help pyrazinamide most, per the *pncA* argument already in the Discussion.
+Consider variant- or protein-level aggregation for rare loss-of-function events.
 
-The Discussion currently argues, correctly, that cross-study numbers are not
-comparable — but that argument also means we have not demonstrated where this
-pipeline stands. Running TB-Profiler, GenTB and (if feasible) DeepAMR on the
-same held-out isolates would convert a hedge into a result, whichever way it
-falls. A negative result here is publishable at a resource venue and would
-strengthen the paper's credibility.
+**6. SHAP under feature dependence.** The Discussion concedes the analysis
+assumes independence this data violates. Re-derive with a dependence-aware
+estimator (Aas et al. 2021, cited) and quantify the effect of the top-50
+impurity pre-selection. Leaving a known hole in the headline contribution
+invites the sharpest possible review.
 
-- [ ] Define a held-out evaluation set.
-- [ ] Run the comparators on it.
-- [ ] Report side-by-side, including where FORUM-TB loses.
+**7. Agent tooling.** Run `scripts/shap_agent.py` end to end — it has never been
+executed against the API. Then decide whether it belongs in the paper at all; it
+is engineering, not science, and may be better left as a repository artifact.
 
-**Blocks:** NeurIPS E&D, CHIL. Strongly desirable for journals.
+## Venue-specific prep
 
-### 3. External validation cohort
+**ML4H 2026 Findings** — condense to 4pp (appendices unlimited, unpenalised);
+lead with the resource and interpretability layer, benchmark tables to appendix;
+keep the critical Discussion; reformat from IEEEtran to the ML4H template;
+portal opens 2026-08-10. Decide Findings (4pp, non-archival) vs Proceedings
+(8pp, archival) — Proceedings auto-falls back, so it is close to a free option.
 
-- [ ] Validate on isolates independent of the ENA/SRA training set — the
-      CRyPTIC compendium (already cited) offers quantitative MICs and would
-      also let the pyrazinamide label-noise question be separated from the
-      representation question.
+**NeurIPS 2027 E&D** — close gaps 1–4; add a **Croissant metadata file with
+Responsible AI fields** (hard requirement, not currently present); host the
+dataset with a permanent DOI (Zenodo — a GitHub path is not sufficient);
+**anonymise for double-blind** (repo, Hugging Face dashboard, and the author
+names in the dashboard landing text all identify the authors); frame around the
+dataset's evaluative role; reformat to the NeurIPS template.
 
-**Blocks:** NeurIPS E&D, PLOS Comp Biol.
+**Journal route** — reformat to target; close gap 4 at minimum; confirm the
+data- and code-availability statements meet journal policy (the existing back
+matter is close).
 
-### 4. Statistical rigour of the model comparison
+## Already covered
 
-The paper reports that Random Forest wins on all four drugs, on margins as
-small as 0.0015 CV AUC-ROC from a single split, with no confidence intervals.
-The Discussion already concedes the tree ensembles are indistinguishable.
-
-- [ ] Repeated splits or nested CV.
-- [ ] Confidence intervals on every reported metric.
-- [ ] A significance test for the model ranking, or drop the ranking claim.
-
-**Blocks:** any archival venue. Cheap to do and disproportionately improves
-reviewer confidence.
-
-### 5. Representation limits
-
-- [ ] Add indel and structural-variant features — expected to benefit
-      pyrazinamide most, per the *pncA* argument already made in the Discussion.
-- [ ] Consider variant- or protein-level aggregation for rare loss-of-function
-      events.
-
-**Blocks:** nothing outright; strengthens everything.
-
-### 6. Interpretability layer under feature dependence
-
-The Discussion concedes the SHAP analysis assumes feature independence that
-this data violates.
-
-- [ ] Re-derive attributions with a dependence-aware estimator (Aas et al. 2021,
-      already cited).
-- [ ] Quantify the effect of the top-50 impurity pre-selection on the resulting
-      attributions.
-
-**Blocks:** nothing outright, but this is the paper's headline contribution —
-leaving a known methodological hole in it invites the sharpest possible review.
-
-### 7. Agent tooling
-
-- [ ] Run `scripts/shap_agent.py` end to end and evaluate its output. It has
-      never been executed against the API (no credentials on the build machine);
-      this is recorded in the repository README to-do.
-- [ ] Decide whether it belongs in the paper at all. It is engineering, not
-      science, and may be better as a repository artifact than a manuscript claim.
-
----
-
-## Venue-specific preparation
-
-### ML4H 2026 Findings (deadline 2026-09-10)
-
-- [ ] Condense to **4 pages**; appendices are unlimited and unpenalised.
-- [ ] Lead with the resource and interpretability layer. Move the full
-      benchmark tables (Tables 2–4) to the appendix.
-- [ ] Keep the critical Discussion — at this track, candour reads as rigour.
-- [ ] Reformat from IEEEtran to the ML4H template.
-- [ ] Confirm the OpenReview submission portal opens 2026-08-10.
-- [ ] Decide Proceedings (8pp, archival) vs Findings (4pp, non-archival).
-      Proceedings auto-falls back to Findings, so it is close to a free option.
-
-### NeurIPS 2027 Evaluations & Datasets (~May 2027, estimated)
-
-- [ ] Close gaps 1–4 above.
-- [ ] **Croissant metadata file with Responsible AI fields** — a hard track
-      requirement for dataset submissions, and not currently present.
-- [ ] Host the dataset somewhere citable and permanent (DOI via Zenodo or
-      similar); a GitHub path is not sufficient.
-- [ ] **Anonymise for double-blind review** — the repository, the Hugging Face
-      dashboard, and the author names in the dashboard's landing text all
-      currently identify the authors.
-- [ ] Frame the paper around its *evaluative role*: what claims the dataset
-      supports, under what assumptions, with what limitations. The track asks
-      for this explicitly and the existing Discussion is most of the way there.
-- [ ] Reformat to the NeurIPS template.
-
-### Journal route (*Bioinformatics* Application Note, *Microbial Genomics*)
-
-- [ ] Choose target and reformat; Application Note is ~2 pages and would need
-      the paper cut to a tool announcement with the dashboard front and centre.
-- [ ] Close gap 4 (statistical rigour) at minimum.
-- [ ] Confirm data-availability and code-availability statements meet the
-      journal's policy — the existing back matter is close.
-
----
-
-## What is already done
-
-Worth noting, since these are common reviewer complaints and they are covered:
-
-- [x] All 24 references verified against PubMed, Crossref or arXiv, with PMIDs
-      recorded per entry.
-- [x] Every table and in-text number traceable to a source file
-      (`manuscript/PROVENANCE.md`).
-- [x] Code, dataset, trained models and dashboard publicly released.
-- [x] Limitations discussed candidly and specifically, with citations.
-- [x] Comparison to prior work present in the Discussion, including where this
-      work loses.
-- [x] No repository paths or internal notes left in the manuscript body.
+Common reviewer complaints that are already handled: all 24 references verified
+against PubMed/Crossref/arXiv with PMIDs recorded; every table and in-text
+number traceable via `manuscript/PROVENANCE.md`; code, dataset, models and
+dashboard publicly released; limitations discussed specifically and with
+citations; prior-work comparison present including where this work loses; no
+repository paths left in the manuscript body.
