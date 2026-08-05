@@ -8,6 +8,7 @@ Improvements over v1:
   - Results saved with _v2 suffix for comparison with v1
 """
 
+import os
 import argparse
 import pandas as pd
 import numpy as np
@@ -78,6 +79,11 @@ rf = RandomForestClassifier(
     n_jobs=-1
 )
 rf.fit(X_train, y_train)
+
+import joblib
+os.makedirs("models", exist_ok=True)
+joblib.dump(rf, f"models/rf_{DRUG}_v2.joblib")
+print(f"Saved: models/rf_{DRUG}_v2.joblib")
 
 # Fix 2: AUC-ROC in addition to accuracy
 y_pred     = rf.predict(X_test)

@@ -215,3 +215,5 @@ This dataset is intended for:
 
 - GitHub repository: https://github.com/TheMicrobialist/SHAP-mTB-AMR
 - The Microbialist blog: https://themicrobialist.substack.com
+- [![Kaggle](https://img.shields.io/badge/Dataset-Kaggle-blue)](https://www.kaggle.com/datasets/nanzhen/forum-tb)
+- [![HuggingFace](https://img.shields.io/badge/Models-HuggingFace-yellow)](https://huggingface.co/nanzhen102/FORUM-TB-models)
