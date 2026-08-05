@@ -1,0 +1,59 @@
+\documentclass[10pt,journal,compsoc,onecolumn]{IEEEtran}
+
+% ---- packages ----
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds}
+\usepackage{caption}
+\usepackage{url}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+% IEEEtran labels the keywords block "Index Terms" by default.
+\renewcommand{\IEEEkeywordsname}{Key words:}
+
+\begin{document}
+
+\title{FORUM-TB: An Interpretable Machine Learning Framework for Multi-Drug Resistance Prediction in \textit{Mycobacterium tuberculosis} from Whole-Genome Sequencing}
+
+% -------------------------------------------------------------------
+% AUTHOR BLOCK -- PLACEHOLDERS: fill in exact institutional affiliations
+% and contact emails before submission.
+% -------------------------------------------------------------------
+\author{Nanzhen~(Aspen)~Qiao and Noah~LeGall%
+\IEEEcompsocitemizethanks{%
+\IEEEcompsocthanksitem N. Qiao is with [INSERT AFFILIATION -- INSTITUTION, DEPARTMENT], Kingston, ON, Canada.
+\IEEEcompsocthanksitem N. LeGall is with [INSERT AFFILIATION -- INSTITUTION, DEPARTMENT], San Diego, CA, USA. E-mail: [INSERT EMAIL] (Corresponding author).}}
+
+\IEEEtitleabstractindextext{%
+\begin{abstract}
+\input{sections/abstract.tex}
+\end{abstract}
+
+\begin{IEEEkeywords}
+Tuberculosis, antimicrobial resistance, whole-genome sequencing, machine learning, explainable AI, SHAP.
+\end{IEEEkeywords}}
+
+\maketitle
+\IEEEdisplaynontitleabstractindextext
+\IEEEpeerreviewmaketitle
+
+\input{sections/introduction.tex}
+
+\input{sections/results.tex}
+
+\input{sections/methods.tex}
+
+\input{sections/discussion.tex}
+
+\input{sections/backmatter.tex}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

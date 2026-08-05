@@ -1,0 +1,23 @@
+\begin{table}[h]
+\centering
+\caption{Seven-model benchmark, 5-fold stratified cross-validation AUC-ROC per drug (independent benchmarking run from the per-drug models in Table~\ref{tab:perdrug}; minor numeric differences between the two tables reflect independent train/test splits, not a discrepancy). Bold marks the best CV AUC-ROC per drug.}
+\label{tab:modelcomparison}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Model & Rifampicin & Isoniazid & Ethambutol & Pyrazinamide \\
+\midrule
+Random Forest        & \textbf{0.9690} & \textbf{0.9464} & \textbf{0.8997} & \textbf{0.8831} \\
+LightGBM              & 0.9675 & 0.9391 & 0.8938 & 0.8699 \\
+XGBoost                & 0.9643 & 0.9364 & 0.8840 & 0.8595 \\
+LR L1 (Lasso)          & 0.9607 & 0.9433 & 0.8696 & 0.8660 \\
+LR ElasticNet          & 0.9602 & 0.9428 & 0.8651 & 0.8614 \\
+LR L2 (Ridge)          & 0.9568 & 0.9382 & 0.8569 & 0.8488 \\
+Linear SVM (SGD)       & 0.9155 & 0.8782 & 0.7796 & 0.7912 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize
+Same 80/20 train/test split and 5-fold stratified CV protocol as Table~\ref{tab:perdrug}, run independently per model family.
+\end{table}

@@ -1,0 +1,79 @@
+\section*{Results}
+
+\subsection*{Dataset and evaluation}
+
+We assembled a nucleotide-encoded SNP feature matrix from 9{,}798 publicly available \emph{M. tuberculosis} isolates, comprising 2{,}693 positions across nine genes associated with resistance to the four first-line drugs (Methods; Fig.~\ref{fig:pipeline}). Phenotypic label availability differs by drug, reflecting which isolates were tested against which agent in the source studies: 9{,}630 isolates for rifampicin, 9{,}580 for isoniazid, 8{,}196 for ethambutol, and 5{,}749 for pyrazinamide (Table~\ref{tab:dataset}). Class balance also varies substantially, from near-parity for ethambutol (49.8\% resistant) and pyrazinamide (45.4\% resistant) to strongly resistant-skewed for isoniazid (86.0\% resistant). All models were evaluated on an 80/20 stratified train/test split with 5-fold stratified cross-validation on the training partition, reporting accuracy and AUC-ROC; the multi-label formulation was additionally assessed by Hamming loss and subset (exact-match) accuracy.
+
+\input{tables/table1_dataset.tex}
+
+\subsection*{Per-drug classifier performance}
+
+Across all four first-line drugs, Random Forest achieved the highest cross-validated AUC-ROC among the seven benchmarked classifiers (Table~\ref{tab:modelcomparison}), and its final per-drug models achieved test-set AUC-ROC of 0.976 (rifampicin), 0.947 (isoniazid), 0.894 (ethambutol), and 0.886 (pyrazinamide), with corresponding 5-fold CV AUC-ROC of 0.969, 0.946, 0.900, and 0.883 (Table~\ref{tab:perdrug}). Gradient-boosted alternatives (LightGBM, XGBoost) tracked Random Forest closely on rifampicin and isoniazid but fell further behind on ethambutol and pyrazinamide; the linear SVM trained via SGD was the weakest model on every drug, most markedly on ethambutol (CV AUC-ROC 0.780 vs. 0.900 for Random Forest). Performance ordering across drugs (rifampicin~$>$~isoniazid~$>$~ethambutol~$\approx$~pyrazinamide) was consistent between the per-drug models (Table~\ref{tab:perdrug}) and the independent multi-model benchmarking run (Table~\ref{tab:modelcomparison}).
+
+\input{tables/table2_per_drug_rf.tex}
+\input{tables/table3_model_comparison.tex}
+
+\subsection*{SHAP-based interpretability}
+
+SHAP summary plots for the four per-drug Random Forest models (Figure~\ref{fig:shap_summary}) show that the top-ranked feature for rifampicin and isoniazid corresponds to a single dominant genomic position each, consistent with the well-characterized resistance mutations \emph{rpoB} S450L and \emph{katG} S315T, respectively. For ethambutol, attribution is more distributed across multiple \emph{embB} positions, consistent with the polygenic and comparatively lower discriminative performance observed in Table~\ref{tab:perdrug}. These associations were not supplied to the model as prior knowledge; they emerge purely from feature importance on the encoded SNP matrix, providing a form of internal validation that the classifiers are learning biologically plausible signal rather than confounded artefacts.
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/fig2a_shap_rifampicin.png}
+\caption*{(a) Rifampicin}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/fig2b_shap_isoniazid.png}
+\caption*{(b) Isoniazid}
+\end{minipage}
+
+\vspace{6pt}
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/fig2c_shap_ethambutol.png}
+\caption*{(c) Ethambutol}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/fig2d_shap_pyrazinamide.png}
+\caption*{(d) Pyrazinamide}
+\end{minipage}
+\caption{SHAP summary (beeswarm) plots for the top-50-feature Random Forest model, one panel per drug. Each point is one isolate; horizontal position is the SHAP value (contribution to predicted resistance log-odds), color encodes the encoded nucleotide value, and features are ranked top-to-bottom by mean absolute SHAP value.}
+\label{fig:shap_summary}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig3a_benchmark_rifampicin.png}
+\vspace{4pt}
+\includegraphics[width=0.85\linewidth]{figures/fig3b_benchmark_isoniazid.png}
+\caption{Seven-model CV AUC-ROC comparison for rifampicin (top) and isoniazid (bottom); ethambutol and pyrazinamide follow the same ranking pattern (Random Forest best, linear SVM weakest) per Table~\ref{tab:modelcomparison}.}
+\label{fig:benchmark}
+\end{figure}
+
+\subsection*{Cross-drug attribution and co-resistance signal}
+
+Because the four drug labels are correlated at the population level (e.g. multidrug-resistant isolates are jointly resistant to rifampicin and isoniazid far more often than expected under independence), we examined whether SHAP attribution for a shared genomic feature shifts between isolates resistant to only one drug versus isolates co-resistant to both. For the rifampicin--isoniazid pair, the dominant rifampicin feature (\emph{rpoB} S450L, pos\_761155) retains a large mean $|\mathrm{SHAP}|$ in the rifampicin model regardless of isoniazid co-resistance status, while several secondary features -- notably the dominant isoniazid feature \emph{katG} S315T (pos\_2155168) -- show a pronounced attribution shift between the single-drug-resistant and co-resistant groups (Table~\ref{tab:crossdrug}). This pattern is consistent with the two mutations reflecting largely independent, drug-specific resistance mechanisms whose co-occurrence in an isolate reflects epidemiological linkage (sequential or concurrent acquisition of MDR-conferring mutations) rather than a shared causal pathway.
+
+\input{tables/table5_cross_drug_shap.tex}
+
+\subsection*{Multi-label prediction}
+
+Extending Random Forest to jointly predict all four drug labels achieved a macro-averaged AUC-ROC of 0.919 and a Hamming loss of 0.136 (Table~\ref{tab:multilabel}), both consistent with the per-drug AUC-ROC values above. However, subset accuracy -- the fraction of isolates for which all four labels are predicted correctly simultaneously -- was substantially lower at 0.591, reflecting that a single per-drug misclassification anywhere in the four-drug profile counts as a failure under this stricter metric. Random Forest again outperformed LightGBM, XGBoost, and linear SVM on every multi-label metric.
+
+\input{tables/table4_multilabel.tex}
+
+\subsection*{Case study: an MDR-TB isolate}
+
+To illustrate isolate-level interpretability, we applied the trained per-drug models and their SHAP explainers to a held-out demonstration isolate, ERR040120 (Table~\ref{tab:casestudy}). The isolate was predicted resistant to all four drugs, with near-certain probability for rifampicin and isoniazid (both $P=1.000$) driven overwhelmingly by \emph{rpoB} S450L and \emph{katG} S315T respectively, and lower-confidence resistance predictions for ethambutol ($P=0.733$) and pyrazinamide ($P=0.851$) for which no single feature dominates the attribution to the same degree. This isolate and its precomputed explanations are also used as the default "demo mode" input for the public dashboard described below.
+
+\input{tables/table6_case_study.tex}
+
+\subsection*{Public dashboard}
+
+To make these per-isolate explanations accessible without requiring local computation, we released an interactive Streamlit dashboard, deployed as a public Hugging Face Space. The dashboard supports a demo mode, which loads the precomputed ERR040120 predictions above with no computation required, and a live mode, in which a user-supplied filtered VCF is encoded against the 2{,}693 AMR-gene feature positions, scored using the corresponding per-drug Random Forest model (downloaded from Hugging Face Hub), and explained in real time via \texttt{TreeExplainer}. The dashboard displays a four-drug resistance-profile summary, per-drug SHAP bar charts of the top 20 contributing features, and an expandable table of the underlying mutations, and allows the resulting explanation to be downloaded as JSON.

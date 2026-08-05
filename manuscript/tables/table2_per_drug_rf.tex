@@ -1,0 +1,19 @@
+\begin{table}[h]
+\centering
+\caption{Per-drug Random Forest classifier performance (final v2 models; 80/20 stratified train/test split, 300 trees, \texttt{class\_weight="balanced"}). CV columns report 5-fold stratified cross-validation, mean $\pm$ SD.}
+\label{tab:perdrug}
+\begin{tabular}{lrrrr}
+\toprule
+Drug & Test Acc. & Test AUC-ROC & CV Acc. & CV AUC-ROC \\
+\midrule
+Rifampicin   & 0.9496 & 0.9759 & 0.9366 $\pm$ 0.0040 & 0.9688 $\pm$ 0.0039 \\
+Isoniazid    & 0.9045 & 0.9473 & 0.9056 $\pm$ 0.0037 & 0.9462 $\pm$ 0.0074 \\
+Ethambutol   & 0.8091 & 0.8936 & 0.8208 $\pm$ 0.0048 & 0.8996 $\pm$ 0.0066 \\
+Pyrazinamide & 0.8200 & 0.8862 & 0.8116 $\pm$ 0.0133 & 0.8831 $\pm$ 0.0075 \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize
+Per-class precision/recall/F1 (test split): Rifampicin -- Susceptible 0.86/0.95/0.91, Resistant 0.98/0.95/0.97 ($n=1{,}926$); Isoniazid -- Susceptible 0.61/0.91/0.73, Resistant 0.98/0.90/0.94 ($n=1{,}916$); Ethambutol -- Susceptible 0.78/0.86/0.82, Resistant 0.84/0.76/0.80 ($n=1{,}640$); Pyrazinamide -- Susceptible 0.80/0.89/0.84, Resistant 0.85/0.74/0.79 ($n=1{,}150$).
+\end{table}

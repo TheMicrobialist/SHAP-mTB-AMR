@@ -1,0 +1,290 @@
+% ============================================================================
+% VERIFIED 2026-08-04 against authoritative sources:
+%   - PubMed E-utilities (esearch/esummary) for all journal articles
+%   - Crossref API for Breiman 2001 and XGBoost (KDD 2016)
+%   - arXiv for Lundberg & Lee (1705.07874) and Li BWA-MEM (1303.3997)
+%   - who.int for both WHO publications
+% Volume, issue, pages, year, DOI and full author lists were taken from those
+% records, not from recollection. PMIDs are recorded per entry so any claim
+% here can be re-checked in one lookup.
+%
+% Note: LightGBM page numbers differ between secondary sources (3146--3154 vs
+% 3149--3157); NeurIPS proceedings are not Crossref-indexed. Confirm against
+% the published volume if the target journal requires page numbers.
+% ============================================================================
+
+% ---------- Tuberculosis: burden, diagnostics, resistance catalogues ----------
+
+@techreport{who2025globaltb,
+  author      = {{World Health Organization}},
+  title       = {Global Tuberculosis Report 2025},
+  institution = {World Health Organization},
+  address     = {Geneva},
+  year        = {2025},
+  url         = {https://www.who.int/teams/global-programme-on-tuberculosis-and-lung-health/tb-reports/global-tuberculosis-report-2025}
+}
+
+@techreport{who2023catalogue,
+  author      = {{World Health Organization}},
+  title       = {Catalogue of Mutations in {Mycobacterium tuberculosis} Complex and Their Association with Drug Resistance},
+  edition     = {2nd},
+  institution = {World Health Organization},
+  address     = {Geneva},
+  year        = {2023},
+  note        = {{ISBN 978-92-4-008241-0}},
+  url         = {https://www.who.int/publications/i/item/9789240082410}
+}
+
+@article{helb2010genexpert,
+  author  = {Helb, Danica and Jones, Marie and Story, Elizabeth and Boehme, Catharina and Wallace, Eleanor and Ho, Kelen and Kop, Jeff and Owens, Michael R. and Rodgers, Roger and Banada, Padmapriya and Safi, Hassan and Blakemore, Robert and Lan, N. T. Ngoc and Jones-L{\'o}pez, Edward C. and Levi, Michael and Burday, Michael and Ayakaka, Irene and Mugerwa, Roy D. and McMillan, Bo and Winn-Deen, Emily and Christel, Lori and Dailey, Peter and Perkins, Mark D. and Persing, David H. and Alland, David},
+  title   = {Rapid detection of {Mycobacterium tuberculosis} and rifampin resistance by use of on-demand, near-patient technology},
+  journal = {Journal of Clinical Microbiology},
+  volume  = {48},
+  number  = {1},
+  pages   = {229--237},
+  year    = {2010},
+  doi     = {10.1128/JCM.01463-09},
+  note    = {{PMID: 19864480}}
+}
+
+@article{cole1998deciphering,
+  author  = {Cole, S. T. and Brosch, R. and Parkhill, J. and Garnier, T. and Churcher, C. and Harris, D. and Gordon, S. V. and Eiglmeier, K. and Gas, S. and Barry, C. E. and others},
+  title   = {Deciphering the biology of {Mycobacterium tuberculosis} from the complete genome sequence},
+  journal = {Nature},
+  volume  = {393},
+  number  = {6685},
+  pages   = {537--544},
+  year    = {1998},
+  doi     = {10.1038/31159},
+  note    = {{PMID: 9634230}}
+}
+
+@article{walker2015whole,
+  author  = {Walker, Timothy M. and Kohl, Thomas A. and Omar, Shaheed V. and Hedge, Jessica and Del Ojo Elias, Carlos and Bradley, Phelim and Iqbal, Zamin and Feuerriegel, Silke and Niehaus, Katharina E. and Wilson, Daniel J. and Clifton, David A. and Kapatai, Georgia and Ip, Camilla L. C. and Bowden, Rory and Drobniewski, Francis A. and Allix-B{\'e}guec, Caroline and Gaudin, Cyril and Parkhill, Julian and Diel, Roland and Supply, Philip and Crook, Derrick W. and Smith, E. Grace and Walker, A. Sarah and Ismail, Nazir and Niemann, Stefan and Peto, Timothy E. A.},
+  title   = {Whole-genome sequencing for prediction of {Mycobacterium tuberculosis} drug susceptibility and resistance: a retrospective cohort study},
+  journal = {The Lancet Infectious Diseases},
+  volume  = {15},
+  number  = {10},
+  pages   = {1193--1202},
+  year    = {2015},
+  doi     = {10.1016/S1473-3099(15)00062-6},
+  note    = {{PMID: 26116186}}
+}
+
+@article{cryptic2022compendium,
+  author  = {{CRyPTIC Consortium}},
+  title   = {A data compendium associating the genomes of 12,289 {Mycobacterium tuberculosis} isolates with quantitative resistance phenotypes to 13 antibiotics},
+  journal = {PLOS Biology},
+  volume  = {20},
+  number  = {8},
+  pages   = {e3001721},
+  year    = {2022},
+  doi     = {10.1371/journal.pbio.3001721},
+  note    = {{PMID: 35944069}}
+}
+
+@article{garciamarin2024role,
+  author  = {Garc{\'i}a-Mar{\'i}n, Ana M. and Cancino-Mu{\~n}oz, Irving and Torres-Puente, Manuela and Villamayor, Luis M. and Borr{\'a}s, Rafael and Borr{\'a}s-M{\'a}{\~n}ez, Mar{\'i}a and Bosque, Montserrat and Camarena, Juan J. and others},
+  title   = {Role of the first {WHO} mutation catalogue in the diagnosis of antibiotic resistance in {Mycobacterium tuberculosis} in the {Valencia} Region, {Spain}: a retrospective genomic analysis},
+  journal = {The Lancet Microbe},
+  volume  = {5},
+  number  = {1},
+  pages   = {e43--e51},
+  year    = {2024},
+  doi     = {10.1016/S2666-5247(23)00252-5},
+  note    = {{PMID: 38061383}}
+}
+
+@article{yadon2017pnca,
+  author  = {Yadon, Adam N. and Maharaj, Kashmeel and Adamson, John H. and Lai, Yi-Pin and Sacchettini, James C. and Ioerger, Thomas R. and Rubin, Eric J. and Pym, Alexander S.},
+  title   = {A comprehensive characterization of {PncA} polymorphisms that confer resistance to pyrazinamide},
+  journal = {Nature Communications},
+  volume  = {8},
+  number  = {1},
+  pages   = {588},
+  year    = {2017},
+  doi     = {10.1038/s41467-017-00721-2},
+  note    = {{PMID: 28928454}}
+}
+
+@article{billows2023feature,
+  author  = {Billows, Nina and Phelan, Jody E. and Xia, Dong and Peng, Yonghong and Clark, Taane G. and Chang, Yu-Mei},
+  title   = {Feature weighted models to address lineage dependency in drug-resistance prediction from {Mycobacterium tuberculosis} genome sequences},
+  journal = {Bioinformatics},
+  volume  = {39},
+  number  = {7},
+  pages   = {btad428},
+  year    = {2023},
+  doi     = {10.1093/bioinformatics/btad428},
+  note    = {{PMID: 37428143}}
+}
+
+% ---------- Sequence processing tools ----------
+
+@misc{li2013bwamem,
+  author       = {Li, Heng},
+  title        = {Aligning sequence reads, clone sequences and assembly contigs with {BWA-MEM}},
+  year         = {2013},
+  eprint       = {1303.3997},
+  archivePrefix = {arXiv},
+  primaryClass = {q-bio.GN},
+  url          = {https://arxiv.org/abs/1303.3997}
+}
+
+@article{danecek2021twelve,
+  author  = {Danecek, Petr and Bonfield, James K. and Liddle, Jennifer and Marshall, John and Ohan, Valeriu and Pollard, Martin O. and Whitwham, Andrew and Keane, Thomas and McCarthy, Shane A. and Davies, Robert M. and Li, Heng},
+  title   = {Twelve years of {SAMtools} and {BCFtools}},
+  journal = {GigaScience},
+  volume  = {10},
+  number  = {2},
+  pages   = {giab008},
+  year    = {2021},
+  doi     = {10.1093/gigascience/giab008},
+  note    = {{PMID: 33590861}}
+}
+
+@article{chen2018fastp,
+  author  = {Chen, Shifu and Zhou, Yanqing and Chen, Yaru and Gu, Jia},
+  title   = {fastp: an ultra-fast all-in-one {FASTQ} preprocessor},
+  journal = {Bioinformatics},
+  volume  = {34},
+  number  = {17},
+  pages   = {i884--i890},
+  year    = {2018},
+  doi     = {10.1093/bioinformatics/bty560},
+  note    = {{PMID: 30423086}}
+}
+
+% ---------- Machine learning methods ----------
+
+@article{breiman2001random,
+  author  = {Breiman, Leo},
+  title   = {Random Forests},
+  journal = {Machine Learning},
+  volume  = {45},
+  number  = {1},
+  pages   = {5--32},
+  year    = {2001},
+  doi     = {10.1023/A:1010933404324}
+}
+
+@inproceedings{chen2016xgboost,
+  author    = {Chen, Tianqi and Guestrin, Carlos},
+  title     = {{XGBoost}: A Scalable Tree Boosting System},
+  booktitle = {Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+  pages     = {785--794},
+  year      = {2016},
+  doi       = {10.1145/2939672.2939785}
+}
+
+@inproceedings{ke2017lightgbm,
+  author    = {Ke, Guolin and Meng, Qi and Finley, Thomas and Wang, Taifeng and Chen, Wei and Ma, Weidong and Ye, Qiwei and Liu, Tie-Yan},
+  title     = {{LightGBM}: A Highly Efficient Gradient Boosting Decision Tree},
+  booktitle = {Advances in Neural Information Processing Systems 30 (NeurIPS 2017)},
+  pages     = {3146--3154},
+  year      = {2017}
+}
+
+@inproceedings{lundberg2017unified,
+  author    = {Lundberg, Scott M. and Lee, Su-In},
+  title     = {A Unified Approach to Interpreting Model Predictions},
+  booktitle = {Advances in Neural Information Processing Systems 30 (NeurIPS 2017)},
+  pages     = {4765--4774},
+  year      = {2017},
+  eprint    = {1705.07874},
+  archivePrefix = {arXiv}
+}
+
+% ---------- Comparator tools, benchmarks, and SHAP methodology critique ----------
+% Added 2026-08-04; verified via PubMed (PMIDs below), Crossref, and arXiv.
+
+@article{groschel2021gentb,
+  author  = {Gr{\"o}schel, Matthias I. and Owens, Martin and Freschi, Luca and Vargas, Roger and Marin, Maximillian G. and Phelan, Jody and Iqbal, Zamin and Dixit, Avika and Farhat, Maha R.},
+  title   = {{GenTB}: A user-friendly genome-based predictor for tuberculosis resistance powered by machine learning},
+  journal = {Genome Medicine},
+  volume  = {13},
+  number  = {1},
+  pages   = {138},
+  year    = {2021},
+  doi     = {10.1186/s13073-021-00953-4},
+  note    = {{PMID: 34461978}}
+}
+
+@article{yang2019deepamr,
+  author  = {Yang, Yang and Walker, Timothy M. and Walker, A. Sarah and Wilson, Daniel J. and Peto, Timothy E. A. and Crook, Derrick W. and Shamout, Farah and Arandjelovic, Irena and Comas, Iñaki and Farhat, Maha R.},
+  title   = {{DeepAMR} for predicting co-occurrent resistance of {Mycobacterium tuberculosis}},
+  journal = {Bioinformatics},
+  volume  = {35},
+  number  = {18},
+  pages   = {3240--3249},
+  year    = {2019},
+  doi     = {10.1093/bioinformatics/btz067},
+  note    = {{PMID: 30689732}}
+}
+
+@article{phelan2019tbprofiler,
+  author  = {Phelan, Jody E. and O'Sullivan, Denise M. and Machado, Diana and Ramos, Jorge and Oppong, Yaa E. A. and Campino, Susana and O'Grady, Justin and McNerney, Ruth and Hibberd, Martin L. and Viveiros, Miguel and Huggett, Jim F. and Clark, Taane G.},
+  title   = {Integrating informatics tools and portable sequencing technology for rapid detection of resistance to anti-tuberculous drugs},
+  journal = {Genome Medicine},
+  volume  = {11},
+  number  = {1},
+  pages   = {41},
+  year    = {2019},
+  doi     = {10.1186/s13073-019-0650-x},
+  note    = {{PMID: 31234910}}
+}
+
+@article{ngo2019benchmarking,
+  author  = {Ngo, Thai-Minh and Teo, Yik-Ying},
+  title   = {Genomic prediction of tuberculosis drug-resistance: benchmarking existing databases and prediction algorithms},
+  journal = {BMC Bioinformatics},
+  volume  = {20},
+  number  = {1},
+  pages   = {68},
+  year    = {2019},
+  doi     = {10.1186/s12859-019-2658-z},
+  note    = {{PMID: 30736750}}
+}
+
+@article{aas2021explaining,
+  author  = {Aas, Kjersti and Jullum, Martin and L{\o}land, Anders},
+  title   = {Explaining individual predictions when features are dependent: More accurate approximations to {Shapley} values},
+  journal = {Artificial Intelligence},
+  volume  = {298},
+  pages   = {103502},
+  year    = {2021},
+  doi     = {10.1016/j.artint.2021.103502}
+}
+
+@inproceedings{kumar2020problems,
+  author    = {Kumar, I. Elizabeth and Venkatasubramanian, Suresh and Scheidegger, Carlos and Friedler, Sorelle},
+  title     = {Problems with {Shapley}-value-based explanations as feature importance measures},
+  booktitle = {Proceedings of the 37th International Conference on Machine Learning (ICML)},
+  year      = {2020},
+  eprint    = {2002.11097},
+  archivePrefix = {arXiv}
+}
+
+@article{mok2021pza,
+  author  = {Mok, Simone and Roycroft, Emma and Flanagan, Peter R. and Montgomery, Louise and Borroni, Emanuele and Rogers, Thomas R. and Fitzgibbon, Margaret M.},
+  title   = {Overcoming the challenges of pyrazinamide susceptibility testing in clinical {Mycobacterium tuberculosis} isolates},
+  journal = {Antimicrobial Agents and Chemotherapy},
+  volume  = {65},
+  number  = {8},
+  pages   = {e02617-20},
+  year    = {2021},
+  doi     = {10.1128/AAC.02617-20},
+  note    = {{PMID: 33972244}}
+}
+
+@article{mustazzolu2019revisiting,
+  author  = {Mustazzolu, Alessandro and Piersimoni, Claudio and Iacobino, Angelo and Giannoni, Federico and Chirullo, Barbara and Fattorini, Lanfranco},
+  title   = {Revisiting problems and solutions to decrease {Mycobacterium tuberculosis} pyrazinamide false resistance when using the {Bactec MGIT 960} system},
+  journal = {Annali dell'Istituto Superiore di Sanit{\`a}},
+  volume  = {55},
+  number  = {1},
+  pages   = {51--54},
+  year    = {2019},
+  doi     = {10.4415/ANN_19_01_09},
+  note    = {{PMID: 30968836}}
+}

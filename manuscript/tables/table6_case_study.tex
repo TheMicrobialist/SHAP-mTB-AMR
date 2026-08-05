@@ -1,0 +1,19 @@
+\begin{table}[h]
+\centering
+\caption{Case study: predicted resistance profile for demo isolate ERR040120 (a multidrug-resistant isolate), with its single top-ranked SHAP feature per drug.}
+\label{tab:casestudy}
+\begin{tabular}{lrll}
+\toprule
+Drug & $P$(Resistant) & Prediction & Top SHAP feature (gene, SHAP value) \\
+\midrule
+Rifampicin   & 1.0000 & Resistant & pos\_761155 (rpoB, $+0.2805$) \\
+Isoniazid    & 1.0000 & Resistant & pos\_2155168 (katG, $+0.1787$) \\
+Ethambutol   & 0.7334 & Resistant & pos\_4247730 (embB, $+0.1480$) \\
+Pyrazinamide & 0.8508 & Resistant & pos\_4247730 (embB, $+0.2233$) \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\footnotesize
+pos\_761155 (rpoB) and pos\_2155168 (katG) correspond to the well-characterized rpoB~S450L and katG~S315T resistance mutations.
+\end{table}
