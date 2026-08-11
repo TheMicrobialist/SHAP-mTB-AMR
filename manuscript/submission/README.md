@@ -1,9 +1,6 @@
 # Submission planning
 
-Assess time: 2026-08-05. 
-
-Estimated dates are marked; verify every date on the
-official CFP before relying on it. Gaps and per-venue prep: `readiness-checklist.md`.
+Gaps and per-venue prep: `readiness-checklist.md`.
 
 ## Verdict
 
