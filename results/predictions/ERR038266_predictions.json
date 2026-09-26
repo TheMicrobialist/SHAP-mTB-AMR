@@ -1,0 +1,130 @@
+{
+  "RIFAMPICIN": {
+    "sample": "ERR038266",
+    "drug": "RIFAMPICIN",
+    "prediction": "Susceptible",
+    "probability_resistant": 0.0,
+    "top_shap_features": [
+      {
+        "position": "pos_761155",
+        "gene": "rpoB",
+        "encoded_value": 0,
+        "shap_value": -0.24833
+      },
+      {
+        "position": "pos_761110",
+        "gene": "rpoB",
+        "encoded_value": 0,
+        "shap_value": -0.05618
+      },
+      {
+        "position": "pos_4242075",
+        "gene": "embC",
+        "encoded_value": 1,
+        "shap_value": -0.046413
+      },
+      {
+        "position": "pos_4241562",
+        "gene": "embC",
+        "encoded_value": 1,
+        "shap_value": -0.041893
+      },
+      {
+        "position": "pos_2289047",
+        "gene": "pncA",
+        "encoded_value": 1,
+        "shap_value": -0.037466
+      },
+      {
+        "position": "pos_2154724",
+        "gene": "katG",
+        "encoded_value": 1,
+        "shap_value": -0.03329
+      },
+      {
+        "position": "pos_762434",
+        "gene": "rpoB",
+        "encoded_value": 4,
+        "shap_value": -0.032906
+      },
+      {
+        "position": "pos_4247429",
+        "gene": "embB",
+        "encoded_value": 0,
+        "shap_value": -0.031308
+      },
+      {
+        "position": "pos_4240172",
+        "gene": "embC",
+        "encoded_value": 1,
+        "shap_value": -0.028715
+      },
+      {
+        "position": "pos_4247431",
+        "gene": "embB",
+        "encoded_value": 0,
+        "shap_value": -0.028566
+      },
+      {
+        "position": "pos_761139",
+        "gene": "rpoB",
+        "encoded_value": 0,
+        "shap_value": -0.026188
+      },
+      {
+        "position": "pos_763031",
+        "gene": "rpoB",
+        "encoded_value": 3,
+        "shap_value": 0.020658
+      },
+      {
+        "position": "pos_1834177",
+        "gene": "rpsA",
+        "encoded_value": 0,
+        "shap_value": -0.01783
+      },
+      {
+        "position": "pos_4243460",
+        "gene": "embA",
+        "encoded_value": 0,
+        "shap_value": 0.017472
+      },
+      {
+        "position": "pos_761140",
+        "gene": "rpoB",
+        "encoded_value": 0,
+        "shap_value": -0.013183
+      },
+      {
+        "position": "pos_4247730",
+        "gene": "embB",
+        "encoded_value": 0,
+        "shap_value": -0.010795
+      },
+      {
+        "position": "pos_760314",
+        "gene": "rpoB",
+        "encoded_value": 0,
+        "shap_value": -0.00952
+      },
+      {
+        "position": "pos_761161",
+        "gene": "rpoB",
+        "encoded_value": 0,
+        "shap_value": -0.007155
+      },
+      {
+        "position": "pos_4249583",
+        "gene": "embB",
+        "encoded_value": 0,
+        "shap_value": -0.006395
+      },
+      {
+        "position": "pos_2155267",
+        "gene": "katG",
+        "encoded_value": 0,
+        "shap_value": -0.005449
+      }
+    ]
+  }
+}
