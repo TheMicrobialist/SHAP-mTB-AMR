@@ -2,7 +2,8 @@
 """
 vcf_to_prediction.py
 ====================
-End-to-end workflow: VCF file → resistance prediction + SHAP values
+End-to-end workflow: VCF file → resistance prediction + SHAP values,
+annotated with the WHO mutation catalogue (second edition).
 
 Usage:
     python3 scripts/vcf_to_prediction.py \
@@ -10,7 +11,7 @@ Usage:
         --drug RIFAMPICIN \
         --model-dir models/ \
         --output-dir results/predictions/
-   
+
      # All 4 drugs at once
     python3 scripts/vcf_to_prediction.py \
         --vcf test_data/ERR040120.filtered.vcf.gz \
@@ -18,6 +19,12 @@ Usage:
 Output:
     results/predictions/ERR040120_predictions.json
     results/predictions/ERR040120_RIFAMPICIN_shap_values.csv
+
+Each drug record includes an explanation that leads with the SHAP
+contributions and, where the isolate's allele matches the catalogue,
+the WHO variant name and final confidence grading. Matching uses
+NC_000962.3 position, reference nucleotide, and alternate nucleotide
+against scripts/WHO-UCN-TB-2023.7-eng.xlsx.
 
 For the same prediction plus a per-sample waterfall plot and a
 cohort beeswarm plot, use scripts/vcf_to_shap_plots.py.
@@ -31,15 +38,30 @@ import os
 import gzip
 import json
 import argparse
-import numpy as np
+from pathlib import Path
+
 import pandas as pd
 import joblib
 import shap
+
+from who_catalogue import (
+    SOURCE as WHO_SOURCE,
+    annotate_feature,
+    build_explanation,
+    iter_alleles,
+    load_catalogue,
+    who_table_fields,
+)
 
 # ============================================================
 # SETTINGS
 # ============================================================
 DRUGS = ["RIFAMPICIN", "ISONIAZID", "ETHAMBUTOL", "PYRAZINAMIDE"]
+
+# Second-edition WHO mutation catalogue, placed next to this script.
+DEFAULT_CATALOGUE = (
+    Path(__file__).resolve().parent / "WHO-UCN-TB-2023.7-eng.xlsx"
+)
 
 # Nucleotide encoding (same as ml_matrix.csv.gz)
 NUC_ENCODE = {"A": 1, "T": 2, "C": 3, "G": 4}
@@ -59,14 +81,38 @@ AMR_GENES = {
 # ============================================================
 
 
+class VariantCalls(dict):
+    """SNP calls keyed by position, plus every allele for catalogue matching.
+
+    SNP values are {"ref", "alt"}. ``alleles`` also includes indels and
+    multi-nucleotide alleles as (pos, ref, alt) tuples so they can be matched
+    to the WHO catalogue even though the model scores SNPs only.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.alleles = []
+
+
+def _alt_base(call):
+    """ALT string from a SNP call. Accepts {"ref", "alt"} or a bare ALT."""
+    if isinstance(call, dict):
+        return call.get("alt", "")
+    return call
+
+
 def parse_vcf(vcf_path):
     """
     Parse a VCF or VCF.gz file.
-    Returns a dict: {position (int): alt_allele (str)}
-    Only SNPs retained (len REF == 1 and len ALT == 1).
+
+    SNP calls (single REF base, single ALT base) are stored as
+    {position: {"ref", "alt"}} and are what the model encodes.
+    Every ACGT allele, including indels, is kept on ``variants.alleles``
+    for exact WHO catalogue matching.
     """
-    variants = {}
-    opener = gzip.open if vcf_path.endswith(".gz") else open
+    variants = VariantCalls()
+    seen = set()
+    opener = gzip.open if str(vcf_path).endswith(".gz") else open
 
     with opener(vcf_path, "rt") as f:
         for line in f:
@@ -75,15 +121,26 @@ def parse_vcf(vcf_path):
             parts = line.strip().split("\t")
             if len(parts) < 5:
                 continue
-            chrom, pos, _, ref, alt = parts[0], int(parts[1]), parts[2], parts[3], parts[4]
+            pos = int(parts[1])
+            ref = parts[3].upper()
+            alts = [allele.upper() for allele in parts[4].split(",") if allele and allele != "."]
 
-            # SNPs only
-            if len(ref) != 1 or len(alt) != 1:
-                continue
+            for alt in alts:
+                if not alt or any(base not in "ACGT" for base in ref + alt):
+                    continue
+                key = (pos, ref, alt)
+                if key not in seen:
+                    seen.add(key)
+                    variants.alleles.append(key)
+                # The model has one allele per position. Keep the historical
+                # rule: a SNP line whose ALT field is a single base.
+                if len(ref) == 1 and len(alts) == 1 and len(alt) == 1:
+                    variants[pos] = {"ref": ref, "alt": alt}
 
-            variants[pos] = alt.upper()
-
-    print(f"  Parsed {len(variants)} SNPs from VCF")
+    print(
+        f"  Parsed {len(variants)} SNPs from VCF "
+        f"({len(variants.alleles)} alleles for catalogue matching)"
+    )
     return variants
 
 
@@ -97,10 +154,10 @@ def encode_sample(variants, feature_columns):
     feature_vector = pd.Series(0, index=feature_columns, dtype=int)
 
     matched = 0
-    for pos, alt in variants.items():
+    for pos, call in variants.items():
         col = f"pos_{pos}"
         if col in feature_vector.index:
-            feature_vector[col] = NUC_ENCODE.get(alt, 0)
+            feature_vector[col] = NUC_ENCODE.get(_alt_base(call), 0)
             matched += 1
 
     print(f"  {matched} variants matched to AMR gene positions")
@@ -116,10 +173,11 @@ def get_gene_for_position(pos):
     return "unknown"
 
 
-def predict_and_explain(sample_id, feature_vector, drug, model_dir):
+def predict_and_explain(sample_id, feature_vector, drug, model_dir,
+                        variants=None, catalogue=None):
     """
-    Load trained RF model, predict resistance,
-    compute SHAP values, return structured results.
+    Load trained RF model, predict resistance, compute SHAP values,
+    and attach WHO catalogue grades where the isolate's allele matches.
     """
     model_path = os.path.join(model_dir, f"rf_{drug}_v2.joblib")
     if not os.path.exists(model_path):
@@ -161,21 +219,50 @@ def predict_and_explain(sample_id, feature_vector, drug, model_dir):
     shap_series = pd.Series(shap_array, index=feature_vector.index)
     # Top 20 features by absolute SHAP value
     top_shap = shap_series.abs().nlargest(20)
-    top_shap_details = []
-    for feat in top_shap.index:
-        top_shap_details.append({
-            "position":       feat,
-            "gene":           get_gene_for_position(feat),
-            "encoded_value":  int(feature_vector[feat]),
-            "shap_value":     round(float(shap_series[feat]), 6)
-        })
+    top_shap_details = [
+        annotate_feature(
+            feat,
+            get_gene_for_position(feat),
+            int(feature_vector[feat]),
+            float(shap_series[feat]),
+            variants,
+            catalogue,
+            drug,
+        )
+        for feat in top_shap.index
+    ]
+
+    known_variants = []
+    if catalogue is not None:
+        encoded_by_pos = {}
+        shap_by_pos = {}
+        for feat in feature_vector.index:
+            pos = int(str(feat).replace("pos_", ""))
+            encoded_by_pos[pos] = int(feature_vector[feat])
+            shap_by_pos[pos] = float(shap_series[feat])
+        known_variants = catalogue.known_resistance_variants(
+            iter_alleles(variants), drug, shap_by_pos, encoded_by_pos
+        )
+
+    explanation = build_explanation(
+        sample_id,
+        drug,
+        label,
+        round(float(prob), 4),
+        top_shap_details,
+        known_variants,
+        catalogue_loaded=catalogue is not None,
+    )
 
     result = {
         "sample":     sample_id,
         "drug":       drug,
         "prediction": label,
         "probability_resistant": round(float(prob), 4),
-        "top_shap_features": top_shap_details
+        "explanation": explanation,
+        "who_catalogue_source": WHO_SOURCE if catalogue is not None else None,
+        "known_resistance_variants": known_variants,
+        "top_shap_features": top_shap_details,
     }
 
     return result, shap_series
@@ -196,13 +283,18 @@ def main():
                         help="Directory to save output files")
     parser.add_argument("--all-drugs",  action="store_true",
                         help="Run prediction for all 4 drugs")
+    parser.add_argument("--catalogue", default=str(DEFAULT_CATALOGUE),
+                        help="WHO mutation-catalogue workbook (.xlsx)")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
 
     # Get sample ID from filename
-    sample_id = os.path.basename(args.vcf).replace(
-        ".filtered.vcf.gz", "").replace(".vcf.gz", "")
+    sample_id = os.path.basename(args.vcf)
+    for suffix in (".filtered.vcf.gz", ".vcf.gz", ".vcf"):
+        if sample_id.endswith(suffix):
+            sample_id = sample_id[: -len(suffix)]
+            break
     print(f"\n{'='*60}")
     print(f"Sample: {sample_id}")
     print(f"VCF:    {args.vcf}")
@@ -223,6 +315,14 @@ def main():
     print("\nEncoding sample...")
     feature_vector = encode_sample(variants, feature_cols)
 
+    catalogue = None
+    catalogue_path = Path(args.catalogue)
+    if catalogue_path.is_file():
+        catalogue = load_catalogue(str(catalogue_path))
+    else:
+        print(f"\nWHO catalogue not found ({catalogue_path}).")
+        print("Explanations will use SHAP values only.")
+
     # Predict for one or all drugs
     drugs_to_run = DRUGS if args.all_drugs else [args.drug]
 
@@ -231,7 +331,8 @@ def main():
         print(f"\n--- {drug} ---")
         try:
             result, shap_series = predict_and_explain(
-                sample_id, feature_vector, drug, args.model_dir
+                sample_id, feature_vector, drug, args.model_dir,
+                variants=variants, catalogue=catalogue,
             )
             all_results[drug] = result
 
@@ -240,12 +341,30 @@ def main():
                 args.output_dir,
                 f"{sample_id}_{drug}_shap_values.csv"
             )
+            who_rows = [
+                who_table_fields(annotate_feature(
+                    feat,
+                    get_gene_for_position(feat),
+                    int(encoded),
+                    float(shap_value),
+                    variants,
+                    catalogue,
+                    drug,
+                ))
+                for feat, encoded, shap_value in zip(
+                    shap_series.index, feature_vector.values, shap_series.values
+                )
+            ]
             shap_df = pd.DataFrame({
                 "position":      shap_series.index,
                 "gene":          [get_gene_for_position(p)
                                   for p in shap_series.index],
                 "encoded_value": feature_vector.values,
-                "shap_value":    shap_series.values
+                "shap_value":    shap_series.values,
+                "who_variant":   [row["who_variant"] for row in who_rows],
+                "who_mutation":  [row["who_mutation"] for row in who_rows],
+                "who_effect":    [row["who_effect"] for row in who_rows],
+                "who_grading":   [row["who_grading"] for row in who_rows],
             })
             shap_df = shap_df.sort_values(
                 "shap_value", key=abs, ascending=False
@@ -273,7 +392,13 @@ def main():
         emoji = "🔴" if res["prediction"] == "Resistant" else "🟢"
         print(f"  {emoji} {drug:<15}: {res['prediction']:<12} "
               f"(prob: {res['probability_resistant']:.4f})")
-    print(f"{'='*60}\n")
+    print(f"{'='*60}")
+    print("EXPLANATIONS")
+    print(f"{'='*60}")
+    for drug, res in all_results.items():
+        print(f"\n{drug}\n")
+        print(res.get("explanation", ""))
+    print(f"\n{'='*60}\n")
 
 
 if __name__ == "__main__":
