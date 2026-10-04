@@ -62,10 +62,61 @@ T.~M. Walker, T.~A. Kohl, S.~V. Omar, J.~Hedge, C.~Del Ojo~Elias, P.~Bradley,
   \url{https://www.who.int/publications/i/item/9789240082410}
 \BIBentrySTDinterwordspacing
 
+\bibitem{garciamarin2024role}
+A.~M. Garc{\'i}a-Mar{\'i}n, I.~Cancino-Mu{\~n}oz, M.~Torres-Puente, L.~M.
+  Villamayor, R.~Borr{\'a}s, M.~Borr{\'a}s-M{\'a}{\~n}ez, M.~Bosque, J.~J.
+  Camarena \emph{et~al.}, ``Role of the first {WHO} mutation catalogue in the
+  diagnosis of antibiotic resistance in {Mycobacterium tuberculosis} in the
+  {Valencia} region, {Spain}: a retrospective genomic analysis,'' \emph{The
+  Lancet Microbe}, vol.~5, no.~1, pp. e43--e51, 2024, {PMID: 38061383}.
+
+\bibitem{phelan2019tbprofiler}
+J.~E. Phelan, D.~M. O'Sullivan, D.~Machado, J.~Ramos, Y.~E.~A. Oppong,
+  S.~Campino, J.~O'Grady, R.~McNerney, M.~L. Hibberd, M.~Viveiros, J.~F.
+  Huggett, and T.~G. Clark, ``Integrating informatics tools and portable
+  sequencing technology for rapid detection of resistance to anti-tuberculous
+  drugs,'' \emph{Genome Medicine}, vol.~11, no.~1, p.~41, 2019, {PMID:
+  31234910}.
+
+\bibitem{groschel2021gentb}
+M.~I. Gr{\"o}schel, M.~Owens, L.~Freschi, R.~Vargas, M.~G. Marin, J.~Phelan,
+  Z.~Iqbal, A.~Dixit, and M.~R. Farhat, ``{GenTB}: A user-friendly genome-based
+  predictor for tuberculosis resistance powered by machine learning,''
+  \emph{Genome Medicine}, vol.~13, no.~1, p. 138, 2021, {PMID: 34461978}.
+
+\bibitem{yang2019deepamr}
+Y.~Yang, T.~M. Walker, A.~S. Walker, D.~J. Wilson, T.~E.~A. Peto, D.~W. Crook,
+  F.~Shamout, I.~Arandjelovic, I.~Comas, and M.~R. Farhat, ``{DeepAMR} for
+  predicting co-occurrent resistance of {Mycobacterium tuberculosis},''
+  \emph{Bioinformatics}, vol.~35, no.~18, pp. 3240--3249, 2019, {PMID:
+  30689732}.
+
+\bibitem{ngo2019benchmarking}
+T.-M. Ngo and Y.-Y. Teo, ``Genomic prediction of tuberculosis drug-resistance:
+  benchmarking existing databases and prediction algorithms,'' \emph{BMC
+  Bioinformatics}, vol.~20, no.~1, p.~68, 2019, {PMID: 30736750}.
+
 \bibitem{lundberg2017unified}
 S.~M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model
   predictions,'' in \emph{Advances in Neural Information Processing Systems 30
   (NeurIPS 2017)}, 2017, pp. 4765--4774.
+
+\bibitem{aas2021explaining}
+K.~Aas, M.~Jullum, and A.~L{\o}land, ``Explaining individual predictions when
+  features are dependent: More accurate approximations to {Shapley} values,''
+  \emph{Artificial Intelligence}, vol. 298, p. 103502, 2021.
+
+\bibitem{kumar2020problems}
+I.~E. Kumar, S.~Venkatasubramanian, C.~Scheidegger, and S.~Friedler, ``Problems
+  with {Shapley}-value-based explanations as feature importance measures,'' in
+  \emph{Proceedings of the 37th International Conference on Machine Learning
+  (ICML)}, 2020.
+
+\bibitem{saheed2026llmagent}
+Y.~K. Saheed and J.~E. Chukwuere, ``Autonomous {LLM} agent: A memory-augmented,
+  edge-optimized {SHAP} explanations with zero-day attack resilience in
+  {IoT}/{Industrial IoT} networks,'' \emph{IEEE Internet of Things Journal},
+  vol.~13, no.~7, pp. 14\,213--14\,228, 2026.
 
 \bibitem{cole1998deciphering}
 S.~T. Cole, R.~Brosch, J.~Parkhill, T.~Garnier, C.~Churcher, D.~Harris, S.~V.
@@ -111,32 +162,6 @@ A.~N. Yadon, K.~Maharaj, J.~H. Adamson, Y.-P. Lai, J.~C. Sacchettini, T.~R.
   {PncA} polymorphisms that confer resistance to pyrazinamide,'' \emph{Nature
   Communications}, vol.~8, no.~1, p. 588, 2017, {PMID: 28928454}.
 
-\bibitem{phelan2019tbprofiler}
-J.~E. Phelan, D.~M. O'Sullivan, D.~Machado, J.~Ramos, Y.~E.~A. Oppong,
-  S.~Campino, J.~O'Grady, R.~McNerney, M.~L. Hibberd, M.~Viveiros, J.~F.
-  Huggett, and T.~G. Clark, ``Integrating informatics tools and portable
-  sequencing technology for rapid detection of resistance to anti-tuberculous
-  drugs,'' \emph{Genome Medicine}, vol.~11, no.~1, p.~41, 2019, {PMID:
-  31234910}.
-
-\bibitem{groschel2021gentb}
-M.~I. Gr{\"o}schel, M.~Owens, L.~Freschi, R.~Vargas, M.~G. Marin, J.~Phelan,
-  Z.~Iqbal, A.~Dixit, and M.~R. Farhat, ``{GenTB}: A user-friendly genome-based
-  predictor for tuberculosis resistance powered by machine learning,''
-  \emph{Genome Medicine}, vol.~13, no.~1, p. 138, 2021, {PMID: 34461978}.
-
-\bibitem{yang2019deepamr}
-Y.~Yang, T.~M. Walker, A.~S. Walker, D.~J. Wilson, T.~E.~A. Peto, D.~W. Crook,
-  F.~Shamout, I.~Arandjelovic, I.~Comas, and M.~R. Farhat, ``{DeepAMR} for
-  predicting co-occurrent resistance of {Mycobacterium tuberculosis},''
-  \emph{Bioinformatics}, vol.~35, no.~18, pp. 3240--3249, 2019, {PMID:
-  30689732}.
-
-\bibitem{ngo2019benchmarking}
-T.-M. Ngo and Y.-Y. Teo, ``Genomic prediction of tuberculosis drug-resistance:
-  benchmarking existing databases and prediction algorithms,'' \emph{BMC
-  Bioinformatics}, vol.~20, no.~1, p.~68, 2019, {PMID: 30736750}.
-
 \bibitem{mok2021pza}
 S.~Mok, E.~Roycroft, P.~R. Flanagan, L.~Montgomery, E.~Borroni, T.~R. Rogers,
   and M.~M. Fitzgibbon, ``Overcoming the challenges of pyrazinamide
@@ -151,29 +176,10 @@ A.~Mustazzolu, C.~Piersimoni, A.~Iacobino, F.~Giannoni, B.~Chirullo, and
   system,'' \emph{Annali dell'Istituto Superiore di Sanit{\`a}}, vol.~55,
   no.~1, pp. 51--54, 2019, {PMID: 30968836}.
 
-\bibitem{aas2021explaining}
-K.~Aas, M.~Jullum, and A.~L{\o}land, ``Explaining individual predictions when
-  features are dependent: More accurate approximations to {Shapley} values,''
-  \emph{Artificial Intelligence}, vol. 298, p. 103502, 2021.
-
-\bibitem{kumar2020problems}
-I.~E. Kumar, S.~Venkatasubramanian, C.~Scheidegger, and S.~Friedler, ``Problems
-  with {Shapley}-value-based explanations as feature importance measures,'' in
-  \emph{Proceedings of the 37th International Conference on Machine Learning
-  (ICML)}, 2020.
-
 \bibitem{billows2023feature}
 N.~Billows, J.~E. Phelan, D.~Xia, Y.~Peng, T.~G. Clark, and Y.-M. Chang,
   ``Feature weighted models to address lineage dependency in drug-resistance
   prediction from {Mycobacterium tuberculosis} genome sequences,''
   \emph{Bioinformatics}, vol.~39, no.~7, p. btad428, 2023, {PMID: 37428143}.
-
-\bibitem{garciamarin2024role}
-A.~M. Garc{\'i}a-Mar{\'i}n, I.~Cancino-Mu{\~n}oz, M.~Torres-Puente, L.~M.
-  Villamayor, R.~Borr{\'a}s, M.~Borr{\'a}s-M{\'a}{\~n}ez, M.~Bosque, J.~J.
-  Camarena \emph{et~al.}, ``Role of the first {WHO} mutation catalogue in the
-  diagnosis of antibiotic resistance in {Mycobacterium tuberculosis} in the
-  {Valencia} region, {Spain}: a retrospective genomic analysis,'' \emph{The
-  Lancet Microbe}, vol.~5, no.~1, pp. e43--e51, 2024, {PMID: 38061383}.
 
 \end{thebibliography}
