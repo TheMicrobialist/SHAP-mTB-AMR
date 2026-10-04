@@ -107,6 +107,7 @@ def predict_and_explain(sample_id, feature_vector, drug, model_dir, matrix_path)
     sample_exp.feature_names = [feature_label(f) for f in feature_vector.index]
 
     shap_series = pd.Series(sample_exp.values, index=feature_vector.index)
+    shap_series = shap_series[shap_series != 0]
     top_shap_details = []
     for feat in shap_series.abs().nlargest(20).index:
         top_shap_details.append({
@@ -140,10 +141,11 @@ def save_waterfall(sample_exp, path, sample_id, drug, result, max_display):
 
 
 def save_shap_csv(shap_series, feature_vector, path):
+    encoded = feature_vector.reindex(shap_series.index)
     shap_df = pd.DataFrame({
         "position": shap_series.index,
         "gene": [get_gene_for_position(p) for p in shap_series.index],
-        "encoded_value": feature_vector.values,
+        "encoded_value": encoded.values,
         "shap_value": shap_series.values,
     }).sort_values("shap_value", key=abs, ascending=False)
     shap_df.to_csv(path, index=False)

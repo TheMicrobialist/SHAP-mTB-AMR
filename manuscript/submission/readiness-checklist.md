@@ -54,7 +54,7 @@ estimator (Aas et al. 2021, cited) and quantify the effect of the top-50
 impurity pre-selection. Leaving a known hole in the headline contribution
 invites the sharpest possible review.
 
-**7. Agent tooling.** Run `scripts/shap_agent.py` end to end. It has never been
+**7. Agent tooling.** Run `scripts/agent/shap_agent.py` end to end. It has never been
 executed against the API. Then decide whether it belongs in the paper at all; it
 is engineering, not science, and may be better left as a repository artifact.
 

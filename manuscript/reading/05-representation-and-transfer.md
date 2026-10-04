@@ -23,7 +23,7 @@ Realistically a **next-paper direction**, not a revision item.
 
 - **Gives**: amino-acid change instead of nucleotide
 - **Use for**: a representation closer to the biology
-- **Needs**: mostly built: `lookup_position` in `scripts/shap_agent.py` already computes codon and residue from `reference/H37Rv.fasta`
+- **Needs**: mostly built: `lookup_position` in `scripts/agent/shap_agent.py` already computes codon and residue from `reference/H37Rv.fasta`
 - **Effort**: low–medium
 
 ---
