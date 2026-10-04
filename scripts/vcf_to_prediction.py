@@ -16,8 +16,11 @@ Usage:
         --vcf test_data/ERR040120.filtered.vcf.gz \
         --all-drugs
 Output:
-    results/predictions/ERR040120_RIFAMPICIN_prediction.json
+    results/predictions/ERR040120_predictions.json
     results/predictions/ERR040120_RIFAMPICIN_shap_values.csv
+
+For the same prediction plus a per-sample waterfall plot and a
+cohort beeswarm plot, use scripts/vcf_to_shap_plots.py.
 
 Trained models:
     HuggingFace: https://huggingface.co/nanzhen102/FORUM-TB-models
