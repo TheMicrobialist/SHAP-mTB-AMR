@@ -17,7 +17,8 @@ Each entry uses the same four fields:
 | 02 | `02-benchmarking-and-comparison.md` | Comparison, external validation, stats | High |
 | 03 | `03-dataset-paper-standards.md` | NeurIPS hard requirements | High, mechanical |
 | 04 | `04-interpretability-methods.md` | SHAP dependence + faithfulness | Medium |
-| 05 | `05-representation-and-transfer.md` | Beyond position-encoded SNPs | Next paper |
+| 05 | `05-representation-and-transfer.md` | Beyond position-encoded SNPs | **Deprioritised, see 06** |
+| 06 | `06-on-device-llm-decision.md` | On-device LLM question + **BIG-TB** | **Read first** |
 
 ## Order
 
@@ -27,6 +28,14 @@ Each entry uses the same four fields:
 3. **03**: cheap, mechanical, hard gate for NeurIPS. Do early, not at deadline.
 4. **04**: the headline contribution currently has no faithfulness evidence.
 5. **05**: highest ceiling, highest cost.
+
+## Read 06 first
+
+It answers the on-device LLM question (no), but more importantly it flags
+**BIG-TB**: a 17,000-genome TB benchmark with a prediction *and* attribution
+task, released 2026-02-02. It overlaps this project's niche, independently
+reports our central finding, answers gap 5 negatively, and supplies the shared
+benchmark gaps 2 and 3 ask for. It changes the priorities below.
 
 ## Caution
 

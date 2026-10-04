@@ -46,6 +46,10 @@ BMC Bioinformatics 20(1):68 · [doi:10.1186/s12859-019-2658-z](https://doi.org/1
 
 ## External validation set
 
+> **See `06` first.** BIG-TB (17,000 genomes, ML-ready, with a prediction and
+> an attribution task, code released) is a faster route to gaps 2 and 3 than
+> assembling a comparison from scratch.
+
 ### CRyPTIC Consortium 2022: the compendium · *already cited, never used*
 PLOS Biology 20(8):e3001721 · [doi:10.1371/journal.pbio.3001721](https://doi.org/10.1371/journal.pbio.3001721) · PMID 35944069
 

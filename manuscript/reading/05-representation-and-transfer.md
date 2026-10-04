@@ -30,6 +30,11 @@ Realistically a **next-paper direction**, not a revision item.
 
 ## Pretrained genomic models
 
+> **Largely answered, negatively.** BIG-TB (see `06`) benchmarked DNA
+> foundation models on exactly this task: mean test AUC 0.888 for the best CNN
+> against 0.846 for the best DNABERT variant. Foundation models did not beat
+> simple ML baselines. Pursue only to improve on that specific result.
+
 ### Ji et al. 2021: DNABERT
 Bioinformatics 37(15):2112–2120 · [doi:10.1093/bioinformatics/btab083](https://doi.org/10.1093/bioinformatics/btab083) · PMID 33538820
 
