@@ -41,6 +41,6 @@ is not the same as the numeric suffix of the `tables/tableN_*.tex` filenames.
 
 ## Re-checking
 
-The agent tooling in `scripts/shap_agent.py` reads several of these files
-directly, so `python3 scripts/test_shap_agent_tools.py` independently confirms
+The agent tooling in `scripts/agent/shap_agent.py` reads several of these files
+directly, so `python3 scripts/agent/test_shap_agent_tools.py` independently confirms
 the Table 4 and Table 6 values still match their sources.

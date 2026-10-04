@@ -7,7 +7,7 @@ Offline tests for the shap_agent evidence layer.
 Runs with no API key and makes no network calls — the four tools are plain
 functions over local data. Run before trusting anything the agent says:
 
-    python3 scripts/test_shap_agent_tools.py
+    python3 scripts/agent/test_shap_agent_tools.py
 """
 
 import sys
@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import shap_agent as sa
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEMO = REPO_ROOT / "results" / "predictions" / "ERR040120_predictions.json"
 
 PASS, FAIL = [], []
@@ -27,6 +27,17 @@ def check(name, condition, detail=""):
     (PASS if condition else FAIL).append(name)
     print(f"  {'PASS' if condition else 'FAIL'}  {name}" + (f"  — {detail}" if detail else ""))
 
+
+print("\n=== Config ===")
+cfg = sa.load_agent_config()
+check("default config loads", cfg.backend in sa.BACKENDS and bool(cfg.model),
+      f"{cfg.backend}/{cfg.model}")
+check("claude alias maps to anthropic",
+      sa.resolve_agent_config(backend="claude").backend == "anthropic")
+check("openai backend accepted",
+      sa.resolve_agent_config(backend="openai", model="gpt-4o").backend == "openai")
+check("CLI model override wins",
+      sa.resolve_agent_config(model="gpt-4o").model == "gpt-4o")
 
 print("\n=== Reading-frame validation ===")
 frames_ok = sa._validate_reading_frames()

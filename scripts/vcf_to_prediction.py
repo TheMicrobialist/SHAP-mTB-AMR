@@ -16,6 +16,13 @@ Usage:
     python3 scripts/vcf_to_prediction.py \
         --vcf test_data/ERR040120.filtered.vcf.gz \
         --all-drugs
+
+    # Predict, then interpret with the agent (backend/model from config)
+    python3 scripts/vcf_to_prediction.py \
+        --vcf test_data/ERR040120.filtered.vcf.gz \
+        --all-drugs \
+        --interpret \
+        --config scripts/agent/agent_config.yaml
 Output:
     results/predictions/ERR040120_predictions.json
     results/predictions/ERR040120_RIFAMPICIN_shap_values.csv
@@ -35,6 +42,7 @@ Trained models:
 """
 
 import os
+import sys
 import gzip
 import json
 import argparse
@@ -290,6 +298,19 @@ def main():
                         help="Run prediction for all 4 drugs")
     parser.add_argument("--catalogue", default=str(DEFAULT_CATALOGUE),
                         help="WHO mutation-catalogue workbook (.xlsx)")
+    parser.add_argument("--interpret", action="store_true",
+                        help="After prediction, run the SHAP interpretation agent")
+    parser.add_argument("--config",
+                        default=str(
+                            Path(__file__).resolve().parent
+                            / "agent" / "agent_config.yaml"
+                        ),
+                        help="Agent config YAML/JSON (backend and model). "
+                             "Used with --interpret.")
+    parser.add_argument("--backend", choices=["anthropic", "claude", "openai"],
+                        help="Override the agent config backend")
+    parser.add_argument("--llm-model", dest="llm_model",
+                        help="Override the agent config model id")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -405,6 +426,46 @@ def main():
         print(f"\n{drug}\n")
         print(res.get("explanation", ""))
     print(f"\n{'='*60}\n")
+
+    if args.interpret:
+        _run_interpretation(json_path, args)
+
+
+def _run_interpretation(json_path, args):
+    """Load the agent from scripts/agent/ and interpret the saved JSON."""
+    agent_dir = Path(__file__).resolve().parent / "agent"
+    sys.path.insert(0, str(agent_dir))
+    try:
+        import shap_agent
+    except ImportError as exc:
+        raise SystemExit(
+            "Could not import the interpretation agent from scripts/agent/.\n"
+            f"{exc}"
+        ) from exc
+
+    try:
+        cfg = shap_agent.resolve_agent_config(
+            config_path=args.config,
+            backend=args.backend,
+            model=args.llm_model,
+        )
+    except (FileNotFoundError, ValueError) as exc:
+        raise SystemExit(f"Agent config error: {exc}") from exc
+
+    if not shap_agent.credentials_available(backend=cfg.backend,
+                                            config_path=args.config):
+        print(shap_agent.credential_help(cfg))
+        print("Predictions were saved; interpretation was skipped.")
+        return
+
+    print(f"Running interpretation agent ({cfg.backend} / {cfg.model})...")
+    report = shap_agent.interpret(json_path, config=cfg)
+    print(report)
+    report_path = Path(json_path).with_name(
+        Path(json_path).name.replace("_predictions.json", "_interpretation.md")
+    )
+    report_path.write_text(report)
+    print(f"\nInterpretation saved: {report_path}")
 
 
 if __name__ == "__main__":

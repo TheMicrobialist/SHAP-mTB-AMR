@@ -31,9 +31,12 @@ import streamlit as st
 warnings.filterwarnings("ignore")
 
 # Optional interpretation agent. Absent on deployments that ship only the
-# dashboard (e.g. a HuggingFace Space without scripts/), or when the anthropic
-# package isn't installed — the rest of the app works either way.
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+# dashboard (e.g. a HuggingFace Space without scripts/agent/), or when the
+# configured backend package isn't installed — the rest of the app works
+# either way.
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT / "scripts"))
+sys.path.insert(0, str(_REPO_ROOT / "scripts" / "agent"))
 try:
     import shap_agent
     _AGENT_AVAILABLE = True
@@ -407,16 +410,22 @@ st.markdown("### Interpretation")
 
 if not _AGENT_AVAILABLE:
     st.info(
-        "The interpretation agent is not configured. It needs the `anthropic` "
-        "package and an API key:\n\n"
-        "```\npip install anthropic\nexport ANTHROPIC_API_KEY=...\n```\n\n"
+        "The interpretation agent is not configured. Install the backend "
+        "listed in `scripts/agent/agent_config.yaml` and set its API key:\n\n"
+        "```\n"
+        "pip install anthropic    # backend: anthropic\n"
+        "export ANTHROPIC_API_KEY=...\n"
+        "# or\n"
+        "pip install openai       # backend: openai\n"
+        "export OPENAI_API_KEY=...\n"
+        "```\n\n"
         "Everything above works without it."
     )
 elif not shap_agent.credentials_available():
+    cfg = shap_agent.load_agent_config()
     st.info(
-        "No Anthropic credentials found. Set `ANTHROPIC_API_KEY` (or run "
-        "`ant auth login`) to enable written interpretation of these "
-        "attributions. Everything above works without it."
+        shap_agent.credential_help(cfg) + "\n\n"
+        "Everything above works without it."
     )
 else:
     st.caption(

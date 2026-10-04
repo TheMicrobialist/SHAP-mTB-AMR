@@ -9,36 +9,42 @@ raw attribution table into a written interpretation, looking up the supporting
 evidence (amino-acid change, cohort prevalence, co-resistance context) rather
 than recalling it.
 
+Backend and model come from `scripts/agent/agent_config.yaml` (anthropic or
+openai). Override with `--config`, `--backend`, or `--model`.
+
 Usage:
     # Full report on all four drugs
-    python3 scripts/shap_agent.py \\
+    python3 scripts/agent/shap_agent.py \\
         --predictions results/predictions/ERR040120_predictions.json
 
-    # A specific question
-    python3 scripts/shap_agent.py \\
+    # A specific question, OpenAI backend from the config or CLI
+    python3 scripts/agent/shap_agent.py \\
         --predictions results/predictions/ERR040120_predictions.json \\
+        --backend openai --model gpt-4o \\
         --question "Why is this isolate predicted pyrazinamide-resistant?"
 
     # Show which tools the agent called (verify claims against evidence)
-    python3 scripts/shap_agent.py --predictions ... --trace
+    python3 scripts/agent/shap_agent.py --predictions ... --trace
 
-Requires ANTHROPIC_API_KEY, or an `ant auth login` profile, to run the agent.
-The four tools below are plain functions over local data and need no
-credentials — they can be imported and tested offline.
+Anthropic needs ANTHROPIC_API_KEY (or `ant auth login`). OpenAI needs
+OPENAI_API_KEY. The four tools below are plain functions over local data and
+need no credentials — they can be imported and tested offline.
 """
 
 import os
 import sys
 import json
-import gzip
+import inspect
 import argparse
 import contextvars
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+_SCRIPTS = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_SCRIPTS))
 try:
     # Single source of truth for the AMR gene coordinates.
     from vcf_to_prediction import AMR_GENES
@@ -51,13 +57,14 @@ except ImportError as exc:  # pragma: no cover - dependency guard
 
 from shap_agent_prompts import SYSTEM_PROMPT, REPORT_REQUEST, QUESTION_REQUEST
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+DEFAULT_CONFIG = Path(__file__).resolve().parent / "agent_config.yaml"
 GENOME_FASTA = REPO_ROOT / "reference" / "H37Rv.fasta"
 ML_MATRIX = REPO_ROOT / "resistance_dataset" / "ml_matrix.csv.gz"
 CROSS_DRUG_DIR = REPO_ROOT / "results"
 
 DRUGS = ["RIFAMPICIN", "ISONIAZID", "ETHAMBUTOL", "PYRAZINAMIDE"]
-MODEL = "claude-opus-5"
+BACKENDS = ("anthropic", "openai")
 
 # Strand for each AMR gene on H37Rv (NC_000962.3). Validated at import time by
 # _validate_reading_frames(): every gene must have a length divisible by 3, a
@@ -90,6 +97,98 @@ CODON_TABLE = {
 # Set per-call by interpret(); a ContextVar rather than a module global so
 # concurrent Streamlit sessions don't clobber each other.
 _ACTIVE = contextvars.ContextVar("active_predictions", default=None)
+
+
+# ============================================================
+# Config
+# ============================================================
+
+@dataclass
+class AgentConfig:
+    backend: str = "anthropic"
+    model: str = "claude-opus-5"
+    effort: str = "high"
+    max_tokens: int = 16000
+
+    def __post_init__(self):
+        backend = str(self.backend or "anthropic").strip().lower()
+        if backend == "claude":
+            backend = "anthropic"
+        if backend not in BACKENDS:
+            raise ValueError(
+                f"Unknown backend {self.backend!r}. Expected one of: "
+                f"anthropic, claude, openai."
+            )
+        self.backend = backend
+        self.model = str(self.model or "").strip()
+        if not self.model:
+            raise ValueError("Config 'model' must be a non-empty model id.")
+        self.effort = str(self.effort or "high").strip().lower()
+        self.max_tokens = int(self.max_tokens)
+
+
+def _coerce_config_value(raw):
+    if isinstance(raw, (int, float, bool)) or raw is None:
+        return raw
+    text = str(raw).strip().strip('"').strip("'")
+    lowered = text.lower()
+    if lowered in ("true", "false"):
+        return lowered == "true"
+    try:
+        return int(text)
+    except ValueError:
+        return text
+
+
+def _parse_config_text(text: str) -> dict:
+    """Accept JSON or a flat YAML/INI-style `key: value` file."""
+    stripped = text.strip()
+    if not stripped:
+        return {}
+    if stripped[0] in "{[":
+        data = json.loads(stripped)
+        if not isinstance(data, dict):
+            raise ValueError("Config JSON must be an object.")
+        return data
+
+    data = {}
+    for line in stripped.splitlines():
+        line = line.split("#", 1)[0].strip()
+        if not line or ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        key = key.strip()
+        if key:
+            data[key] = _coerce_config_value(value)
+    return data
+
+
+def load_agent_config(path=None) -> AgentConfig:
+    """Load `scripts/agent/agent_config.yaml`, or `path` if given."""
+    config_path = Path(path) if path else DEFAULT_CONFIG
+    if not config_path.is_file():
+        if path:
+            raise FileNotFoundError(f"Agent config not found: {config_path}")
+        return AgentConfig()
+    data = _parse_config_text(config_path.read_text())
+    known = {field: data[field] for field in AgentConfig.__dataclass_fields__
+             if field in data}
+    return AgentConfig(**known)
+
+
+def resolve_agent_config(config_path=None, backend=None, model=None,
+                         effort=None, max_tokens=None) -> AgentConfig:
+    """File defaults, then explicit overrides (CLI / function kwargs)."""
+    cfg = load_agent_config(config_path)
+    if backend is not None:
+        cfg.backend = backend
+    if model is not None:
+        cfg.model = model
+    if effort is not None:
+        cfg.effort = effort
+    if max_tokens is not None:
+        cfg.max_tokens = max_tokens
+    return AgentConfig(**cfg.__dict__)
 
 
 # ============================================================
@@ -365,6 +464,7 @@ def get_shap_detail(drug: str, top_n: int = 40) -> dict:
 
 
 TOOL_FUNCTIONS = [lookup_position, cohort_frequency, cross_drug_context, get_shap_detail]
+TOOL_BY_NAME = {fn.__name__: fn for fn in TOOL_FUNCTIONS}
 
 
 # ============================================================
@@ -409,6 +509,15 @@ def format_profile(active: dict, drug: str = None) -> str:
 # Agent
 # ============================================================
 
+def _user_prompt(active, drug, question) -> str:
+    profile = format_profile(active, drug)
+    if question:
+        return QUESTION_REQUEST.format(
+            sample_id=active["sample_id"], profile=profile, question=question
+        )
+    return REPORT_REQUEST.format(sample_id=active["sample_id"], profile=profile)
+
+
 def interpret(predictions_path, **kwargs):
     """Run the interpretation agent over a prediction JSON file.
 
@@ -417,8 +526,11 @@ def interpret(predictions_path, **kwargs):
         drug: Restrict the profile to one drug. None covers all four.
         question: Free-text question. None produces a full report.
         trace: Print each tool call as it happens.
-        model: Claude model id.
-        effort: Reasoning effort (low | medium | high | xhigh | max).
+        config_path: YAML/JSON file with backend and model. Defaults to
+            scripts/agent/agent_config.yaml.
+        backend: anthropic or openai. Overrides the config file.
+        model: Provider model id. Overrides the config file.
+        effort: Anthropic reasoning effort (low | medium | high | xhigh | max).
 
     Returns:
         The agent's written interpretation as a string.
@@ -439,63 +551,183 @@ def interpret_results(results, sample_id, output_dir=None, **kwargs):
 
 
 def _run_agent(active, drug=None, question=None, trace=False,
-               model=MODEL, effort="high"):
+               model=None, effort=None, backend=None, config=None,
+               config_path=None, max_tokens=None):
     """Shared agent loop for interpret() and interpret_results()."""
+    cfg = config if isinstance(config, AgentConfig) else resolve_agent_config(
+        config_path=config_path, backend=backend, model=model,
+        effort=effort, max_tokens=max_tokens,
+    )
+    token = _ACTIVE.set(active)
+    try:
+        prompt = _user_prompt(active, drug, question)
+        print(f"  Agent: {cfg.backend} / {cfg.model}", file=sys.stderr)
+        if cfg.backend == "openai":
+            return _run_openai(cfg, prompt, trace)
+        return _run_anthropic(cfg, prompt, trace)
+    finally:
+        _ACTIVE.reset(token)
+
+
+def _run_anthropic(cfg: AgentConfig, prompt: str, trace: bool) -> str:
     try:
         import anthropic
         from anthropic import beta_tool
     except ImportError as exc:
         raise ImportError(
-            "The anthropic package is required to run the agent:\n"
+            "The anthropic package is required for backend=anthropic:\n"
             "    pip install anthropic"
         ) from exc
 
-    token = _ACTIVE.set(active)
+    client = anthropic.Anthropic()
+    runner = client.beta.messages.tool_runner(
+        model=cfg.model,
+        max_tokens=cfg.max_tokens,
+        thinking={"type": "adaptive"},
+        output_config={"effort": cfg.effort},
+        system=SYSTEM_PROMPT,
+        tools=[beta_tool(fn) for fn in TOOL_FUNCTIONS],
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    final_text = []
+    for message in runner:
+        for block in message.content:
+            if block.type == "tool_use" and trace:
+                print(f"  [tool] {block.name}({json.dumps(block.input)})",
+                      file=sys.stderr)
+            elif block.type == "text":
+                final_text = [block.text]
+    return "\n".join(final_text).strip()
+
+
+def _openai_tools():
+    """JSON-schema tool list derived from the Python function signatures."""
+    type_map = {int: "integer", float: "number", bool: "boolean"}
+    tools = []
+    for fn in TOOL_FUNCTIONS:
+        properties = {}
+        required = []
+        for name, param in inspect.signature(fn).parameters.items():
+            if param.kind in (param.VAR_POSITIONAL, param.VAR_KEYWORD):
+                continue
+            json_type = type_map.get(param.annotation, "string")
+            properties[name] = {"type": json_type}
+            if param.default is inspect.Parameter.empty:
+                required.append(name)
+        tools.append({
+            "type": "function",
+            "function": {
+                "name": fn.__name__,
+                "description": (fn.__doc__ or "").strip(),
+                "parameters": {
+                    "type": "object",
+                    "properties": properties,
+                    "required": required,
+                },
+            },
+        })
+    return tools
+
+
+def _run_openai(cfg: AgentConfig, prompt: str, trace: bool) -> str:
     try:
-        tools = [beta_tool(fn) for fn in TOOL_FUNCTIONS]
-        profile = format_profile(active, drug)
-        prompt = (
-            QUESTION_REQUEST.format(sample_id=active["sample_id"],
-                                    profile=profile, question=question)
-            if question else
-            REPORT_REQUEST.format(sample_id=active["sample_id"], profile=profile)
-        )
+        from openai import OpenAI
+    except ImportError as exc:
+        raise ImportError(
+            "The openai package is required for backend=openai:\n"
+            "    pip install openai"
+        ) from exc
 
-        client = anthropic.Anthropic()
-        runner = client.beta.messages.tool_runner(
-            model=model,
-            max_tokens=16000,
-            thinking={"type": "adaptive"},
-            output_config={"effort": effort},
-            system=SYSTEM_PROMPT,
+    client = OpenAI()
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": prompt},
+    ]
+    tools = _openai_tools()
+
+    for _ in range(25):
+        response = client.chat.completions.create(
+            model=cfg.model,
+            messages=messages,
             tools=tools,
-            messages=[{"role": "user", "content": prompt}],
+            tool_choice="auto",
+            max_tokens=cfg.max_tokens,
         )
+        message = response.choices[0].message
+        assistant = {"role": "assistant", "content": message.content or ""}
+        if message.tool_calls:
+            assistant["tool_calls"] = [
+                {
+                    "id": call.id,
+                    "type": "function",
+                    "function": {
+                        "name": call.function.name,
+                        "arguments": call.function.arguments,
+                    },
+                }
+                for call in message.tool_calls
+            ]
+        messages.append(assistant)
 
-        final_text = []
-        for message in runner:
-            for block in message.content:
-                if block.type == "tool_use" and trace:
-                    print(f"  [tool] {block.name}({json.dumps(block.input)})",
-                          file=sys.stderr)
-                elif block.type == "text":
-                    final_text = [block.text]
-        return "\n".join(final_text).strip()
-    finally:
-        _ACTIVE.reset(token)
+        if not message.tool_calls:
+            return (message.content or "").strip()
+
+        for call in message.tool_calls:
+            fn = TOOL_BY_NAME.get(call.function.name)
+            try:
+                args = json.loads(call.function.arguments or "{}")
+            except json.JSONDecodeError:
+                args = {}
+            if trace:
+                print(f"  [tool] {call.function.name}({json.dumps(args)})",
+                      file=sys.stderr)
+            if fn is None:
+                result = {"error": f"Unknown tool {call.function.name!r}."}
+            else:
+                result = fn(**args)
+            messages.append({
+                "role": "tool",
+                "tool_call_id": call.id,
+                "content": json.dumps(result, default=str),
+            })
+
+    raise RuntimeError("OpenAI agent exceeded the tool-call limit (25 rounds).")
 
 
-def credentials_available() -> bool:
-    """True if the Anthropic SDK is installed and some credential is resolvable."""
+def credentials_available(backend=None, config_path=None) -> bool:
+    """True if the selected backend's SDK and credentials are resolvable."""
+    cfg = resolve_agent_config(config_path=config_path, backend=backend)
+    if cfg.backend == "openai":
+        try:
+            import openai  # noqa: F401
+        except ImportError:
+            return False
+        return bool(os.environ.get("OPENAI_API_KEY"))
+
     try:
         import anthropic  # noqa: F401
     except ImportError:
         return False
     if os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"):
         return True
-    cfg = Path(os.environ.get("ANTHROPIC_CONFIG_DIR",
-                              Path.home() / ".config" / "anthropic"))
-    return (cfg / "credentials").exists()
+    cfg_dir = Path(os.environ.get("ANTHROPIC_CONFIG_DIR",
+                                  Path.home() / ".config" / "anthropic"))
+    return (cfg_dir / "credentials").exists()
+
+
+def credential_help(cfg: AgentConfig) -> str:
+    if cfg.backend == "openai":
+        return (
+            "No OpenAI credentials found.\n"
+            "  export OPENAI_API_KEY=...\n"
+            "The tools in this module work offline; only the agent needs a key."
+        )
+    return (
+        "No Anthropic credentials found.\n"
+        "  export ANTHROPIC_API_KEY=...   (or run: ant auth login)\n"
+        "The tools in this module work offline; only the agent needs a key."
+    )
 
 
 # ============================================================
@@ -510,20 +742,28 @@ def main():
     ap.add_argument("--drug", choices=DRUGS, help="Restrict to one drug.")
     ap.add_argument("--question", help="Ask a specific question instead of a full report.")
     ap.add_argument("--trace", action="store_true", help="Print tool calls to stderr.")
-    ap.add_argument("--effort", default="high",
-                    choices=["low", "medium", "high", "xhigh", "max"])
+    ap.add_argument("--config", default=str(DEFAULT_CONFIG),
+                    help="YAML/JSON file with backend and model "
+                         f"(default: {DEFAULT_CONFIG}).")
+    ap.add_argument("--backend", choices=["anthropic", "claude", "openai"],
+                    help="Override the config file backend.")
+    ap.add_argument("--model", help="Override the config file model id.")
+    ap.add_argument("--effort", choices=["low", "medium", "high", "xhigh", "max"],
+                    help="Anthropic reasoning effort. Overrides the config file.")
     ap.add_argument("--output", help="Write the report to a file as well as stdout.")
     args = ap.parse_args()
 
-    if not credentials_available():
-        sys.exit(
-            "No Anthropic credentials found.\n"
-            "  export ANTHROPIC_API_KEY=...   (or run: ant auth login)\n"
-            "The tools in this module work offline; only the agent needs a key."
-        )
+    cfg = resolve_agent_config(
+        config_path=args.config, backend=args.backend,
+        model=args.model, effort=args.effort,
+    )
+    if not credentials_available(backend=cfg.backend, config_path=args.config):
+        sys.exit(credential_help(cfg))
 
-    report = interpret(args.predictions, drug=args.drug, question=args.question,
-                       trace=args.trace, effort=args.effort)
+    report = interpret(
+        args.predictions, drug=args.drug, question=args.question,
+        trace=args.trace, config=cfg,
+    )
     print(report)
     if args.output:
         Path(args.output).write_text(report)

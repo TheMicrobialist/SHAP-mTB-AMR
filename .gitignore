@@ -31,6 +31,9 @@ __pycache__/
 # Personal scratch space (never committed)
 private/
 
+# Local LLM backend/model — copy from scripts/agent/agent_config.example.yaml
+scripts/agent/agent_config.yaml
+
 # SLURM outputs
 *.out
 *.err
