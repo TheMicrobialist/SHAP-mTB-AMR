@@ -173,6 +173,11 @@ def get_gene_for_position(pos):
     return "unknown"
 
 
+def nonzero_shap(shap_series):
+    """Keep features whose SHAP value is not exactly 0.0."""
+    return shap_series[shap_series != 0]
+
+
 def predict_and_explain(sample_id, feature_vector, drug, model_dir,
                         variants=None, catalogue=None):
     """
@@ -216,8 +221,8 @@ def predict_and_explain(sample_id, feature_vector, drug, model_dir,
     else:
         shap_array = shap_vals[0, :, 1] if shap_vals.ndim == 3 else shap_vals[0]
 
-    shap_series = pd.Series(shap_array, index=feature_vector.index)
-    # Top 20 features by absolute SHAP value
+    shap_series = nonzero_shap(pd.Series(shap_array, index=feature_vector.index))
+    # Top 20 features by absolute SHAP value (zeros already dropped)
     top_shap = shap_series.abs().nlargest(20)
     top_shap_details = [
         annotate_feature(
@@ -341,25 +346,26 @@ def main():
                 args.output_dir,
                 f"{sample_id}_{drug}_shap_values.csv"
             )
+            encoded = feature_vector.reindex(shap_series.index)
             who_rows = [
                 who_table_fields(annotate_feature(
                     feat,
                     get_gene_for_position(feat),
-                    int(encoded),
+                    int(value),
                     float(shap_value),
                     variants,
                     catalogue,
                     drug,
                 ))
-                for feat, encoded, shap_value in zip(
-                    shap_series.index, feature_vector.values, shap_series.values
+                for feat, value, shap_value in zip(
+                    shap_series.index, encoded.values, shap_series.values
                 )
             ]
             shap_df = pd.DataFrame({
                 "position":      shap_series.index,
                 "gene":          [get_gene_for_position(p)
                                   for p in shap_series.index],
-                "encoded_value": feature_vector.values,
+                "encoded_value": encoded.values,
                 "shap_value":    shap_series.values,
                 "who_variant":   [row["who_variant"] for row in who_rows],
                 "who_mutation":  [row["who_mutation"] for row in who_rows],
