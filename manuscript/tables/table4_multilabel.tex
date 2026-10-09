@@ -1,7 +1,8 @@
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \caption{Multi-label benchmark on the 5{,}180 isolates labelled for all four RIPE drugs, using \texttt{MultiOutputClassifier}, which fits one independent classifier per drug (binary relevance) rather than learning the four labels jointly; plain $K$-fold CV (stratified CV is not defined for multi-label targets).}
 \label{tab:multilabel}
+\small
 \begin{tabular}{lrrr}
 \toprule
 Model & Hamming Loss $\downarrow$ & Subset Acc. $\uparrow$ & Macro AUC-ROC $\uparrow$ \\
@@ -16,4 +17,4 @@ Linear SVM (SGD) & 0.1783 & 0.5010 & 0.8282 \\
 \vspace{4pt}
 \footnotesize
 Subset accuracy requires an exact match across all four drug labels simultaneously, a substantially stricter criterion than the per-drug AUC-ROC values in Tables~\ref{tab:perdrug}--\ref{tab:modelcomparison}.
-\end{table}
+\end{table*}
