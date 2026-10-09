@@ -182,4 +182,9 @@ N.~Billows, J.~E. Phelan, D.~Xia, Y.~Peng, T.~G. Clark, and Y.-M. Chang,
   prediction from {Mycobacterium tuberculosis} genome sequences,''
   \emph{Bioinformatics}, vol.~39, no.~7, p. btad428, 2023, {PMID: 37428143}.
 
+\bibitem{read2011classifier}
+J.~Read, B.~Pfahringer, G.~Holmes, and E.~Frank, ``Classifier chains for
+  multi-label classification,'' \emph{Machine Learning}, vol.~85, no.~3, pp.
+  333--359, 2011.
+
 \end{thebibliography}
