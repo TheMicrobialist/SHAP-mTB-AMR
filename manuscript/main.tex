@@ -1,8 +1,9 @@
-\documentclass[10pt,journal,compsoc,onecolumn]{IEEEtran}
+\documentclass{article}
 
 % ---- packages ----
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
@@ -11,37 +12,46 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds}
 \usepackage{caption}
-\usepackage{url}
-\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
 
-% IEEEtran labels the keywords block "Index Terms" by default.
-\renewcommand{\IEEEkeywordsname}{Key words:}
+% Blind version for review. For camera-ready use \usepackage[accepted]{mlsys2025},
+% which reveals the author list and affiliations defined below.
+\usepackage{mlsys2025}
+
+% Reveals identifying text only in the camera-ready ([accepted]) build.
+\newcommand{\blind}[2]{\ifdefined\isaccepted #1\else #2\fi}
+
+\mlsystitlerunning{FORUM-TB: Interpretable ML for Multi-Drug Resistance in M. tuberculosis}
 
 \begin{document}
 
-\title{FORUM-TB: An Interpretable Machine Learning Framework for Multi-Drug Resistance Prediction in \textit{Mycobacterium tuberculosis} from Whole-Genome Sequencing}
+\twocolumn[
+\mlsystitle{FORUM-TB: An Interpretable Machine Learning Framework for Multi-Drug Resistance Prediction in \textit{Mycobacterium tuberculosis} from Whole-Genome Sequencing}
 
-% -------------------------------------------------------------------
-% AUTHOR BLOCK -- PLACEHOLDERS: fill in exact institutional affiliations
-% and contact emails before submission.
-% -------------------------------------------------------------------
-\author{Nanzhen~(Aspen)~Qiao and Noah~LeGall%
-\IEEEcompsocitemizethanks{%
-\IEEEcompsocthanksitem N. Qiao is with [INSERT AFFILIATION -- INSTITUTION, DEPARTMENT], Kingston, ON, Canada.
-\IEEEcompsocthanksitem N. LeGall is with [INSERT AFFILIATION -- INSTITUTION, DEPARTMENT], San Diego, CA, USA. E-mail: [INSERT EMAIL] (Corresponding author).}}
+% Author information is retained here on purpose: mlsys2025.sty suppresses it
+% and prints "Anonymous Authors" unless the [accepted] option is given.
+\begin{mlsysauthorlist}
+\mlsysauthor{Nanzhen (Aspen) Qiao}{qu}
+\mlsysauthor{Noah LeGall}{dm}
+\end{mlsysauthorlist}
 
-\IEEEtitleabstractindextext{%
+\mlsysaffiliation{qu}{Queen's University, Kingston, Ontario, Canada}
+\mlsysaffiliation{dm}{Dotmatics, San Diego, California, USA}
+
+\mlsyscorrespondingauthor{Nanzhen (Aspen) Qiao}{[INSERT EMAIL]}
+
+\mlsyskeywords{Tuberculosis, antimicrobial resistance, whole-genome sequencing, machine learning, explainable AI, SHAP}
+
+\vskip 0.3in
+
 \begin{abstract}
 \input{sections/abstract.tex}
 \end{abstract}
+]
 
-\begin{IEEEkeywords}
-Tuberculosis, antimicrobial resistance, whole-genome sequencing, machine learning, explainable AI, SHAP.
-\end{IEEEkeywords}}
-
-\maketitle
-\IEEEdisplaynontitleabstractindextext
-\IEEEpeerreviewmaketitle
+\printAffiliationsAndNotice{}
 
 \input{sections/introduction.tex}
 
@@ -55,7 +65,7 @@ Tuberculosis, antimicrobial resistance, whole-genome sequencing, machine learnin
 
 \input{sections/backmatter.tex}
 
-\bibliographystyle{IEEEtran}
+\bibliographystyle{mlsys2025}
 \bibliography{references}
 
 \end{document}

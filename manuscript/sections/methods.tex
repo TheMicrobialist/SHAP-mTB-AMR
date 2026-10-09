@@ -1,12 +1,12 @@
-\section*{Methods}
+\section{Methods}
 
-\subsection*{Data source and reference}
+\subsection{Data source and reference}
 
 Raw paired-end FASTQ files for 9{,}798 \emph{M. tuberculosis} isolates (after quality-control filtering, described below) were downloaded from the European Nucleotide Archive (ENA) and the NCBI Sequence Read Archive (SRA). All source data are publicly available and de-identified; no patient-identifiable information is included. Phenotypic drug-susceptibility labels were compiled into a master resistance table covering 23{,}051 isolates and 23 drugs in total, of which the four first-line drugs -- rifampicin, isoniazid, ethambutol, and pyrazinamide -- were modelled in this study. Reads were aligned to the H37Rv reference genome (RefSeq NC\_000962.3) \cite{cole1998deciphering}, and gene coordinates were taken from the corresponding GFF annotation (GCF\_000195955.2), restricted to nine genes with established resistance associations: \emph{rpoB} (rifampicin); \emph{katG}, \emph{inhA}, \emph{fabG1} (isoniazid); \emph{embB}, \emph{embA}, \emph{embC} (ethambutol); \emph{pncA}, \emph{rpsA} (pyrazinamide).
 
-\subsection*{Sequence processing pipeline}
+\subsection{Sequence processing pipeline}
 
-The complete framework, from raw sequencing reads through to model interpretation and deployment, is summarized in Fig.~\ref{fig:pipeline}. All processing was performed on the Digital Research Alliance of Canada HPC cluster, orchestrated as per-sample SLURM array jobs with resume protection (skipping samples whose output VCF already existed) and cleanup of intermediate FASTQ/BAM files to conserve scratch storage. The pipeline consisted of the following steps, in order:
+The complete framework, from raw sequencing reads through to model interpretation and deployment, is summarized in Fig.~\ref{fig:pipeline}. All processing was performed on the \blind{Digital Research Alliance of Canada HPC cluster}{a national high-performance computing cluster}, orchestrated as per-sample SLURM array jobs with resume protection (skipping samples whose output VCF already existed) and cleanup of intermediate FASTQ/BAM files to conserve scratch storage. The pipeline consisted of the following steps, in order:
 
 \begin{enumerate}
 \item \textbf{Download} -- FASTQ retrieval from ENA/SRA via SRA-tools.
@@ -18,7 +18,7 @@ The complete framework, from raw sequencing reads through to model interpretatio
 
 Software versions and key parameters are summarized in Table~\ref{tab:tools}.
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \caption{Processing pipeline tool versions and parameters.}
 \label{tab:tools}
@@ -33,24 +33,24 @@ VCF filtering     & bcftools filter & 1.22 & QUAL~$\geq20$, MQ~$\geq30$ \\
 Reference genome  & H37Rv          & NC\_000962.3 & -- \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-\subsection*{Feature matrix construction}
+\subsection{Feature matrix construction}
 
 Per-sample filtered VCFs were merged into a single long-format table of 705{,}226 unique variant positions genome-wide. A quality-control pass computed the per-sample variant-count distribution and flagged three isolates (ERR1034652, ERR1035353, ERR1213920) with more than 10{,}000 variants each, well outside the bulk of the distribution and consistent with contamination or platform-specific artefacts; these were excluded from the final dataset. The remaining variants were filtered to (i) single-nucleotide variants only (indels excluded), and (ii) positions intersecting the nine AMR genes listed above. Each retained position was encoded as a single integer column per isolate: 0 for the reference (H37Rv) allele, and 1/2/3/4 for A/T/C/G, respectively; a position absent from an isolate's VCF was assumed to match the reference and encoded as 0. Isolate-level phenotype labels (resistant/susceptible) were joined per drug from the master resistance table. The resulting feature matrix comprises 9{,}798 isolates by 2{,}693 features, with per-drug label availability summarized in Table~\ref{tab:dataset}.
 
-\subsection*{Model training and benchmarking}
+\subsection{Model training and benchmarking}
 
 For each of the four drugs independently, we trained and benchmarked seven classifiers on an 80/20 stratified train/test split, with 5-fold stratified cross-validation (CV) on the training partition: Random Forest \cite{breiman2001random} (300 trees, \texttt{class\_weight="balanced"}), LightGBM \cite{ke2017lightgbm}, XGBoost \cite{chen2016xgboost}, a linear support vector machine trained via stochastic gradient descent (SGD), and three regularized logistic regression variants (L1/Lasso, ElasticNet, L2/Ridge). Performance was assessed via test-set accuracy and AUC-ROC, and 5-fold CV accuracy and AUC-ROC (mean $\pm$ standard deviation across folds).
 
 To assess whole-isolate, multi-drug prediction, we additionally trained a multi-label extension using scikit-learn's \texttt{MultiOutputClassifier} wrapper (Random Forest, LightGBM, XGBoost, and linear SVM base estimators) on the 5{,}180 isolates with phenotype labels available for all four drugs simultaneously. This wrapper implements a first-order, binary-relevance strategy: it fits one independent classifier per drug on the shared feature matrix, so no drug's label informs another and the four estimators are identical to those benchmarked per drug. What the formulation changes is therefore the evaluation, not the model. Because stratified cross-validation is not defined for multi-label targets, plain $K$-fold CV was used. Performance was assessed via per-drug and macro-averaged AUC-ROC, Hamming loss (fraction of individual drug labels mispredicted), and subset accuracy (fraction of isolates for which all four drug labels are predicted correctly simultaneously).
 
-\subsection*{SHAP interpretability analysis}
+\subsection{SHAP interpretability analysis}
 
 For each drug, the Random Forest model (identified as the best-performing algorithm across all four drugs; see Results) was retrained restricted to its top-50 features by impurity-based importance, and interpreted using \texttt{shap.TreeExplainer} with a 100-sample interventional background dataset \cite{lundberg2017unified}. This produces, for every isolate and every retained feature, a signed SHAP value indicating that feature's contribution to the predicted log-odds of resistance, which we summarize as beeswarm/summary plots per drug (Figure~\ref{fig:shap_summary}) and validate qualitatively against known resistance-determining mutations.
 
 To make co-resistance context available at interpretation time, we precomputed a cross-drug attribution analysis for all six pairwise combinations of the four drugs. For each drug pair, isolates were partitioned into four resistance-profile groups (resistant to drug A only, drug B only, both -- co-resistant --, or neither), and for each feature shared between the two drugs' top-feature sets we computed the group-wise mean absolute SHAP value and a "delta" metric quantifying the shift in attribution between the single-drug-resistant and co-resistant groups. The resulting tables are released as queryable context rather than reported as a result; the Discussion sets out why the shifts they contain should not be read as resistance biology.
 
-\subsection*{Software and computing environment}
+\subsection{Software and computing environment}
 
-Sequence processing used a dedicated conda environment (\texttt{tb-wgs-pipeline}; bioconda/conda-forge channels) containing fastp, BWA, SAMtools, bcftools, and SRA-tools. Downstream feature engineering, modelling, and interpretation used Python with pandas, NumPy, scikit-learn, LightGBM, XGBoost, SHAP, and matplotlib. All HPC jobs were scheduled via SLURM on the Digital Research Alliance of Canada cluster.
+Sequence processing used a dedicated conda environment (\texttt{tb-wgs-pipeline}; bioconda/conda-forge channels) containing fastp, BWA, SAMtools, bcftools, and SRA-tools. Downstream feature engineering, modelling, and interpretation used Python with pandas, NumPy, scikit-learn, LightGBM, XGBoost, SHAP, and matplotlib. All HPC jobs were scheduled via SLURM on the \blind{Digital Research Alliance of Canada cluster}{the same national computing cluster}.
