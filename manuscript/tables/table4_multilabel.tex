@@ -1,6 +1,6 @@
 \begin{table}[h]
 \centering
-\caption{Multi-label (all four RIPE drugs predicted jointly via \texttt{MultiOutputClassifier}) benchmark on the 5{,}180 isolates labelled for all four drugs; plain $K$-fold CV (stratified CV is not defined for multi-label targets).}
+\caption{Multi-label benchmark on the 5{,}180 isolates labelled for all four RIPE drugs, using \texttt{MultiOutputClassifier}, which fits one independent classifier per drug (binary relevance) rather than learning the four labels jointly; plain $K$-fold CV (stratified CV is not defined for multi-label targets).}
 \label{tab:multilabel}
 \begin{tabular}{lrrr}
 \toprule
